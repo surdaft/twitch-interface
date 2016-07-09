@@ -9,4 +9,5 @@ namespace Twitch\Interfaces;
  */
 interface MethodInterface
 {
+    
 }

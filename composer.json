@@ -1,0 +1,11 @@
+{
+    "name": "surdaft/twitch-interface",
+    "autoload": {
+        "psr-4": {
+            "Twitch\\": "src/"
+        }
+    },
+    "require": {
+        "vlucas/phpdotenv": "*"
+    }
+}
