@@ -2,12 +2,12 @@
 
 namespace Twitch;
 
-use Twitch\Interfaces\MethodInterface;
-use Twitch\Exceptions\Channel as ChannelException;
+use Twitch\Exceptions\ChannelException;
 
 class Channel
 {
     protected $_endpoint;
+
     protected $_game;
     protected $_status;
     protected $_name;
@@ -19,6 +19,7 @@ class Channel
     protected $_url;
     protected $_views;
     protected $_follows;
+
     protected $_data;
 
     public static function __callStatic($name, $params)
@@ -69,13 +70,13 @@ class Channel
         $this->_follows = $this->_data->followers;
     }
 
-    public function setStatus($new_status)
+    public function status($new_status)
     {
         $this->_status = $new_status;
         return $this;
     }
 
-    public function setGame($new_game)
+    public function game($new_game)
     {
         $this->_game = $new_game;
         return $this;
@@ -84,9 +85,11 @@ class Channel
     // to be used with setTitle and setGame
     public function update()
     {
-        return Twitch::api($this->_endpoint)->scope('channel_editor')->put([
-            'game' => $this->_game,
-            'status' => $this->_status
+        return Twitch::api($this->_endpoint)->put([
+          'channel' => [
+              'game' => $this->_game,
+              'status' => $this->_status
+            ]
         ]);
     }
 
