@@ -45,6 +45,7 @@ class ApiCurl
             CURLOPT_HEADER => false,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_SSL_VERIFYPEER => false // TODO: remove this later, xampp sucks.
         ]);
     }
 
