@@ -28,11 +28,12 @@ class ApiCurl
         }
 
         $this->endpoint = $endpoint;
-        $this->url = Twitch::TWITCH_API_BASE_PATH . $endpoint;
-        $this->curl = curl_init(Twitch::TWITCH_API_BASE_PATH . $endpoint);
+        $this->_url = Twitch::TWITCH_API_BASE_PATH . $endpoint;
+        $this->curl = curl_init($this->_url);
 
         $headers = [
             "Content-Type: application/json",
+            "Accept: application/vnd.twitchtv.v3+json",
             "Client-ID: " . Twitch::getApiKey()
         ];
 
