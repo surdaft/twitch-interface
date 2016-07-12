@@ -124,7 +124,7 @@ class ApiCurl
         $response = curl_exec($this->curl);
 
         $this->_response = $response;
-        $this->_data = json_decode($this->_response);
+        $this->_decoded_response = json_decode($this->_response);
 
         $curl_info = curl_getinfo($this->curl);
         $this->_code = (int) $curl_info['http_code'];
@@ -176,7 +176,7 @@ class ApiCurl
     public function data()
     {
         if (empty($this->_errors)) {
-            return ($this->output_as_json) ? $this->_response : $this->_data;
+            return ($this->output_as_json) ? $this->_response : $this->_decoded_response;
         }
 
         return null;
