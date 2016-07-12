@@ -9,10 +9,17 @@ use Twitch\Exceptions\TwitchInterfaceException;
 class ApiCurl
 {
     private $endpoint;
-    private $errors = [];
-    private $curl;
-    private $_data = [];
+    private $_code;
+    private $_url;
     private $output_as_json = false;
+
+    private $_response;
+    private $_decoded_response;
+
+    private $curl;
+
+    private $_errors = [];
+    private $_data = [];
 
     function __construct($endpoint)
     {
