@@ -72,10 +72,12 @@ class ApiCurl
             throw new ApiCurlException("All put requests must be authenticated with an access token. To set the token you must use Twitch::setAccessToken().");
         }
 
+        $this->_data = $data;
+
         curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "PUT");
 
         // This attaches $data to the post
-        curl_setopt($this->curl, CURLOPT_POSTFIELDS, ['data' => http_build_query($data)]);
+        curl_setopt($this->curl, CURLOPT_POSTFIELDS, http_build_query($data));
         return $this->finalise();
     }
 
