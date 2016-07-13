@@ -77,7 +77,7 @@ class ApiCurl
         curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "PUT");
 
         // This attaches $data to the post
-        curl_setopt($this->curl, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($this->curl, CURLOPT_POSTFIELDS, json_encode($data));
         return $this->finalise();
     }
 
