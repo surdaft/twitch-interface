@@ -35,7 +35,7 @@ class ApiCurl
         $headers = [
             "Content-Type: application/json",
             "Accept: application/vnd.twitchtv.v3+json",
-            "Client-ID: " . Twitch::getApiKey()
+            "Client-ID: " . Twitch::getClientId()
         ];
 
         if (!empty(Twitch::getAccessToken())) {
@@ -156,11 +156,11 @@ class ApiCurl
             'TwitchServerError' => 500
         ];
 
-        if ($response === false) {
+        if ($this->_response === false) {
             $this->_errors['curl'][] = curl_error($this->_curl);
         }
 
-        if ($response === '') {
+        if ($this->_response === '') {
             $this->_errors['curl'][] = "Recieved empty response.";
         }
 
@@ -172,12 +172,12 @@ class ApiCurl
             }
         }
 
-        if (!HelperFunctions::is_json($response)) {
+        if (!HelperFunctions::is_json($this->_response)) {
             if (json_last_error() !== JSON_ERROR_NONE) {
                 $this->_errors['json'][] = json_last_error_msg();
             }
-        } elseif (!empty(json_decode($response)->error)) {
-            $this->_errors['twitch'][] = json_decode($response)->error;
+        } elseif (!empty(json_decode($this->_response)->error)) {
+            $this->_errors['twitch'][] = json_decode($this->_response)->error;
         }
 
         if ($this->_return_data) {
