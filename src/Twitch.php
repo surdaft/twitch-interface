@@ -21,12 +21,12 @@ class Twitch
 
     const TWITCH_API_BASE_PATH = "https://api.twitch.tv/kraken/";
 
-    public static function getApiKey()
+    public static function getClientId()
     {
         return static::$api_key;
     }
 
-    public static function setApiKey($api_key)
+    public static function setClientId($api_key)
     {
         if (!is_string($api_key)) {
             throw new InvalidArgumentException("setApiKey only accepts strings.");
