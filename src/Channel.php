@@ -24,7 +24,7 @@ class Channel extends BaseMethod
                 throw new ChannelException("Please provide a channel name, or use Twitch::setAccessToken() to define the channels access token.");
             }
 
-            if (!Twitch::isAuthorizedFor('channel_read')) {
+            if (Scope::isAuthorized('channel_read') === false) {
                 throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_read`.", 401);
             }
 
@@ -52,7 +52,7 @@ class Channel extends BaseMethod
     // to be used with setTitle and setGame
     public function update()
     {
-        if (!Twitch::isAuthorizedFor('channel_editor'))    {
+        if (Scope::isAuthorized('channel_editor') === false)    {
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_editor`.", 401);
         }
 
@@ -68,7 +68,7 @@ class Channel extends BaseMethod
 
     public function resetStreamKey()
     {
-        if (!Twitch::isAuthorizedFor('channel_stream'))    {
+        if (Scope::isAuthorized('channel_stream') === false)    {
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_stream`.", 401);
         }
 
@@ -99,7 +99,7 @@ class Channel extends BaseMethod
 
     public function editors()
     {
-        if (!Twitch::isAuthorizedFor('channel_read')) {
+        if (Scope::isAuthorized('channel_read') === false) {
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_read`.", 401);
         }
 
@@ -125,7 +125,7 @@ class Channel extends BaseMethod
 
     public function commercial($length = 30)
     {
-        if (!Twitch::isAuthorizedFor('channel_commercial'))    {
+        if (Scope::isAuthorized('channel_commercial') === false)    {
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_commercial`.", 401);
         }
 

@@ -15,9 +15,8 @@ class Twitch
      * This is the token that is returned when a user authenticates
      * through the OAuth2 method.
      */
-    static $access_token;
-    
-    static $scopes = [];
+    protected static $access_token;
+    protected static $scopes = [];
 
     const TWITCH_API_BASE_PATH = "https://api.twitch.tv/kraken/";
 
@@ -71,25 +70,5 @@ class Twitch
     public static function api($endpoint = '')
     {
         return new ApiCurl($endpoint);
-    }
-    
-    /**
-     * Get authorized scopes
-     * Returns an array of scopes the access token is authorized for
-     */
-    public function getAuthorizedScopes()
-    {
-        // TODO: Throw an exception when no auth token is set
-        return static::$scopes;
-    }
-    
-    /**
-     * is authorized for
-     * Check whether an access token is authorized for a scope, this is used internally
-     * to determine whether we can use a function before it does an API call.
-     */
-    public function isAuthorizedFor($scope)
-    {
-        return in_array($scope, static::$scopes);
     }
 }

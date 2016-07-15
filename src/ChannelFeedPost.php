@@ -24,7 +24,7 @@ class ChannelFeedPost extends BaseMethod
 
     public function delete()
     {
-        if (!Twitch::isAuthorizedFor('channel_feed_edit')) {
+        if (Scope::isAuthorized('channel_feed_edit') === false) {
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_edit`.", 401);
         }
 
@@ -39,7 +39,7 @@ class ChannelFeedPost extends BaseMethod
      */
     public function react($emote_id)
     {
-        if (!Twitch::isAuthorizedFor('channel_feed_edit')) {
+        if (Scope::isAuthorized('channel_feed_edit') === false) {
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_edit`.", 401);
         }
 
@@ -59,7 +59,7 @@ class ChannelFeedPost extends BaseMethod
      */
     public function unreact($emote_id)
     {
-        if (!Twitch::isAuthorizedFor('channel_feed_edit')) {
+        if (Scope::isAuthorized('channel_feed_edit') === false) {
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_edit`.", 401);
         }
 

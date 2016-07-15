@@ -46,7 +46,7 @@ class ChannelFeed extends BaseMethod
             throw new ChannelFeedException("Content is required when creating a new channel feed post.");
         }
 
-        if (!Twitch::isAuthorizedFor('channel_feed_edit')) {
+        if (Scope::isAuthorized('channel_feed_edit') === false) {
            throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_edit`.", 401);
        }
 
