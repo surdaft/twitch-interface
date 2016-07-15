@@ -51,8 +51,6 @@ class ChannelFeedPost extends BaseMethod
             'emote_id' => (string) $emote_id
         ]);
         
-        dd($response);
-        
         return $this;
     }
     
