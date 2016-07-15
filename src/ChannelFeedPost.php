@@ -15,12 +15,9 @@ class ChannelFeedPost extends BaseMethod
         if (empty($params['channel']) || empty($params['post_id'])) {
             throw new ChannelFeedPostException("We require both the channel and post_id to be passed to ChannelFeedPost as an array.");
         }
-        
-        $channel = $params['channel'];
-        $post_id = $params['post_id'];
-        
-        $this->setEndpoint("feed/{$channel}/posts/{$post_id}");
-        
+
+        $this->setEndpoint("feed/{$params['channel']}/posts/{$params['post_id']}");
+
         $curl = Twitch::Api($this->endpoint())->get();
         $this->setData($curl->data());
     }
