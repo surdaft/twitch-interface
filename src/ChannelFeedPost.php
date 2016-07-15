@@ -43,8 +43,12 @@ class ChannelFeedPost extends BaseMethod
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_edit`.", 401);
         }
 
+        if (!is_string($emote_id) && !is_numeric($emote_id)) {
+            throw new InvalidArgumentException("Emote ID must be either a string or a number.");
+        }
+
         $response = Twitch::api($this->endpoint() . "/reactions")->post([
-            'emote_id' => $emote_id
+            'emote_id' => (string) $emote_id
         ]);
         
         dd($response);
@@ -61,8 +65,12 @@ class ChannelFeedPost extends BaseMethod
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_edit`.", 401);
         }
 
+        if (!is_string($emote_id) && !is_numeric($emote_id)) {
+            throw new InvalidArgumentException("Emote ID must be either a string or a number.");
+        }
+
         $response = Twitch::api($this->endpoint() . "/reactions")->delete([
-            'emote_id' => $emote_id
+            'emote_id' => (string) $emote_id
         ]);
         
         return $this;
