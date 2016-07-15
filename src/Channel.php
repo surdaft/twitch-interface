@@ -80,7 +80,7 @@ class Channel extends BaseMethod
         $response = Twitch::api($this->endpoint() . "/videos")->get()->data();
 
         if ($response) {
-            return $response->videos;
+            return $response;
         } else {
             throw new ChannelException("Errors encountered retrieving videos.");
         }
@@ -91,7 +91,7 @@ class Channel extends BaseMethod
         $response = Twitch::api($this->endpoint() . "/follows")->get()->data();
 
         if ($response) {
-            return $response->follows;
+            return $response;
         } else {
             throw new ChannelException("Errors encountered retrieving follows.");
         }
@@ -106,7 +106,7 @@ class Channel extends BaseMethod
         $response = Twitch::api($this->endpoint() . "/editors")->get()->data();
 
         if ($response) {
-            return $response->users;
+            return $response;
         } else {
             throw new ChannelException("Errors encountered retrieving editors.");
         }
@@ -117,7 +117,7 @@ class Channel extends BaseMethod
         $response = Twitch::api($this->endpoint() . "/teams")->get()->data();
 
         if ($response) {
-            return $response->teams;
+            return $response;
         } else {
             throw new ChannelException("Errors encountered retrieving teams.");
         }
