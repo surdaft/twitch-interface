@@ -16,6 +16,8 @@ class Twitch
      * through the OAuth2 method.
      */
     static $access_token;
+    
+    static $scopes = [];
 
     const TWITCH_API_BASE_PATH = "https://api.twitch.tv/kraken/";
 
@@ -46,19 +48,48 @@ class Twitch
         if (!is_string($access_token)) {
             throw new InvalidArgumentException("setAccessToken only accepts strings.");
         }
+        
         static::$access_token = $access_token;
+        
+        $access_token_validation = Twitch::api()->get()->data();
+        
+        if (!$access_token_validation->token->valid) {
+            throw new \Exception("This access token is not valid. Please confirm you have authorized the user correctly.", 401);
+        }
+        
+        static::$scopes = $access_token_validation->token->authorization->scopes;
     }
 
-    public static function api($endpoint)
+    /**
+     * Curl twitch
+     * Use the curl function to GET / PUT / POST / DELETE requests to twitch' api.
+     * 
+     * Example: Twitch::api('channels/surdaft')->get();
+     * 
+     * $params $endpoint string
+     */
+    public static function api($endpoint = '')
     {
-        /**
-         * Sudo code
-         * return new Curl($endpoint);
-         *
-         * Indended use
-         * Twitch::api('channels')->get();
-         * Twitch::api('channels')->data(['title' => 'HELLO', 'game' => 'Creative'])->put();
-         */
         return new ApiCurl($endpoint);
+    }
+    
+    /**
+     * Get authorized scopes
+     * Returns an array of scopes the access token is authorized for
+     */
+    public function getAuthorizedScopes()
+    {
+        // TODO: Throw an exception when no auth token is set
+        return static::$scopes;
+    }
+    
+    /**
+     * is authorized for
+     * Check whether an access token is authorized for a scope, this is used internally
+     * to determine whether we can use a function before it does an API call.
+     */
+    public function isAuthorizedFor($scope)
+    {
+        return in_array($scope, static::$scopes);
     }
 }
