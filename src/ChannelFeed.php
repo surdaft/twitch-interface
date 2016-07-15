@@ -2,41 +2,70 @@
 
 namespace Twitch;
 
-class ChannelFeed implements MethodInterface
+use Twitch\Channel;
+use Twitch\BaseMethod;
+use Twitch\Traits\CallStatically;
+
+use Twitch\Exceptions\ChannelFeedException;
+
+class ChannelFeed extends BaseMethod
 {
-    private $_post;
-
-    public function posts()
+    use CallStatically;
+    
+    private $_channel;
+    
+    /**
+     * @params $channel string
+     * 
+     * @return array An array of all the posts in the channel
+     */
+    function __construct($channel)
     {
-
+        // todo: validate the channel name
+        
+        $this->setEndpoint("feed/{$channel}");
+        
+        $curl = Twitch::Api($this->endpoint() . "/posts")->get();
+        $this->setData($curl->data()->posts);
+        
+        if (empty($this->data())) {
+            throw new ChannelFeedException("Errors encountered retrieving posts.");
+        }
     }
 
-    public function create()
+    /**
+     * Create a new feed post
+     * Access token must be authorized with the channel scope `channel_feed_edit`.
+     * 
+     * @params $params[] $content You must provide atleast content within the params.
+     */
+    public function create(array $params)
     {
-
+        if (empty($params['content'])) {
+            throw new ChannelFeedException("Content is required when creating a new channel feed post.");
+        }
+        
+        return Twitch::Api($this->endpoint())->post([
+            'content' => $params['content'],
+            'share' => !empty($params['share'])
+        ]);
     }
 
+    /**
+     * Select a post
+     * Selecting a post returns all the post data as well as gives you access to
+     * certain functions that respond to posts. Like React and Delete.
+     * 
+     * @params number $post_id
+     * 
+     * @return ChannelFeedPost returns a channel feed post which can do more with
+     * posts specifically.
+     */
     public function post($post_id)
     {
-        $post = (object) [];
-        $this->_post = $post;
-
-        return $this;
-    }
-
-    // $channel_feed->delete(3)
-
-    // $channel_feed->post(3)->delete();
-    // $channel_feed->post(3)->react(213123);
-
-    public function delete()
-    {
-        
-        $response = Twitch::api($this->_endpoint)->delete();
-    }
-
-    public function react()
-    {
-
+        return (new ChannelFeedPost([
+            'channel' => $this->data()->name,
+            'post_id' => $post_id
+        ]));
     }
 }

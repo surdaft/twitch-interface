@@ -8,28 +8,29 @@ use Twitch\Exceptions\TwitchInterfaceException;
 
 class ApiCurl
 {
-    private $endpoint;
+    private $_endpoint;
     private $_code;
     private $_url;
-    private $output_as_json = false;
+    private $_as_json = false;
 
     private $_response;
     private $_decoded_response;
 
-    private $curl;
+    private $_curl;
 
     private $_errors = [];
     private $_data = [];
 
-    function __construct($endpoint)
+    function __construct($endpoint, $return_data = false)
     {
         if (empty(Twitch::$api_key)) {
             throw new TwitchInterfaceException("ClientID required. Use Twitch::setApiKey() to set the API key.");
         }
 
-        $this->endpoint = $endpoint;
-        $this->_url = Twitch::TWITCH_API_BASE_PATH . $endpoint;
-        $this->curl = curl_init($this->_url);
+        $this->_endpoint = $endpoint;
+        $this->_url = Twitch::TWITCH_API_BASE_PATH . $this->_endpoint;
+        $this->_curl = curl_init($this->_url);
+        $this->_return_data = !empty($return_data);
 
         $headers = [
             "Content-Type: application/json",
@@ -41,7 +42,7 @@ class ApiCurl
             $headers[] = "Authorization: OAuth " . Twitch::getAccessToken();
         }
 
-        curl_setopt_array($this->curl, [
+        curl_setopt_array($this->_curl, [
             CURLOPT_HEADER => false,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER => $headers,
@@ -69,27 +70,47 @@ class ApiCurl
     public function put(array $data = [])
     {
         if (empty(Twitch::getAccessToken())) {
-            throw new ApiCurlException("All put requests must be authenticated with an access token. To set the token you must use Twitch::setAccessToken().");
+            throw new ApiCurlException("All PUT requests must be authenticated with an access token. To set the token you must use Twitch::setAccessToken().");
         }
 
         $this->_data = $data;
 
-        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_setopt($this->_curl, CURLOPT_CUSTOMREQUEST, "PUT");
 
         // This attaches $data to the post
-        curl_setopt($this->curl, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($this->_curl, CURLOPT_POSTFIELDS, json_encode($data));
+        
+        return $this->finalise();
+    }
+    
+    public function post(array $data = [])
+    {
+        if (empty(Twitch::getAccessToken())) {
+            throw new ApiCurlException("All POST requests must be authenticated with an access token. To set a token you must use Twitch::setAccessToken().");
+        }
+
+        $this->_data = $data;
+
+        curl_setopt($this->_curl, CURLOPT_POST, true);
+
+        // This attaches $data to the post
+        curl_setopt($this->_curl, CURLOPT_POSTFIELDS, json_encode($data));
+        
         return $this->finalise();
     }
 
-    public function delete()
+    public function delete(array $data = [])
     {
-        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+        curl_setopt($this->_curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+        
+        curl_setopt($this->_curl, CURLOPT_POSTFIELDS, json_encode($data));
+        
         return $this->finalise();
     }
 
     public function as_json()
     {
-        $this->output_as_json = true;
+        $this->_as_json = true;
         return $this;
     }
 
@@ -104,8 +125,8 @@ class ApiCurl
             throw new ApiCurlException("You cannot call scope() after the curl request has been completed. Functions like get() or put() complete the curl request.");
         }
 
-        curl_setopt($this->curl, CURLOPT_URL, Twitch::TWITCH_API_BASE_PATH . $this->endpoint . '?scope=' . $scope);
-        $this->url = Twitch::TWITCH_API_BASE_PATH . $this->endpoint . '?scope=' . $scope;
+        curl_setopt($this->_curl, CURLOPT_URL, Twitch::TWITCH_API_BASE_PATH . $this->_endpoint . '?scope=' . $scope);
+        $this->url = Twitch::TWITCH_API_BASE_PATH . $this->_endpoint . '?scope=' . $scope;
         return $this;
     }
 
@@ -121,22 +142,22 @@ class ApiCurl
      */
     private function finalise()
     {
-        $response = curl_exec($this->curl);
-
-        $this->_response = $response;
+        $this->_response = curl_exec($this->_curl);
+        
         $this->_decoded_response = json_decode($this->_response);
 
-        $curl_info = curl_getinfo($this->curl);
+        $curl_info = curl_getinfo($this->_curl);
         $this->_code = (int) $curl_info['http_code'];
 
         $bad_codes = [
             'UnprocessableEntity' => 422,
+            'Unauthorized' => 401,
             'NoContent' => 204,
             'TwitchServerError' => 500
         ];
 
         if ($response === false) {
-            $this->_errors['curl'][] = curl_error($this->curl);
+            $this->_errors['curl'][] = curl_error($this->_curl);
         }
 
         if ($response === '') {
@@ -144,17 +165,25 @@ class ApiCurl
         }
 
         if (in_array($curl_info['http_code'], $bad_codes)) {
-            $this->_errors['curl'][] = array_search($this->_code, $bad_codes);
+            if (!empty($this->_decoded_response->message)) {
+                $this->_errors['curl'][] = $this->_decoded_response->message;
+            } else {
+                $this->_errors['curl'][] = array_search($this->_code, $bad_codes);
+            }
         }
 
         if (!HelperFunctions::is_json($response)) {
-            $this->_errors['json'][] = json_last_error_msg();
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $this->_errors['json'][] = json_last_error_msg();
+            }
         } elseif (!empty(json_decode($response)->error)) {
             $this->_errors['twitch'][] = json_decode($response)->error;
         }
 
-        // The errors are present at this point, but we
-        // only acknowledge them in a higher class.
+        if ($this->_return_data) {
+            return $this->_decoded_response;
+        }
+        
         return $this;
     }
 
@@ -176,9 +205,11 @@ class ApiCurl
     public function data()
     {
         if (empty($this->_errors)) {
-            return ($this->output_as_json) ? $this->_response : $this->_decoded_response;
+            return ($this->_as_json) ? $this->_response : $this->_decoded_response;
         }
+        
+        dd($this->_errors);
 
-        return null;
+        throw new \Twitch\Exceptions\ApiCurlException("Errors found when trying to get data.");
     }
 }

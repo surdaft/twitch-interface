@@ -2,35 +2,15 @@
 
 namespace Twitch;
 
+use Twitch\BaseMethod;
 use Twitch\Exceptions\ChannelException;
+use Twitch\Traits\CallStatically;
 
-class Channel
+class Channel extends BaseMethod
 {
-    protected $_endpoint;
-
-    protected $_game;
-    protected $_status;
-    protected $_name;
-    protected $_display_name;
-    protected $_logo;
-    protected $_video_banner;
-    protected $_profile_banner;
-    protected $_partner;
-    protected $_url;
-    protected $_views;
-    protected $_follows;
-
-    protected $_data;
-
-    public static function __callStatic($name, $params)
-    {
-        if ($name == 'fetch') {
-            return (new Channel(...$params));
-        }
-
-        return static::$name(...$params);
-    }
-
+    use CallStatically;
+    
+    private $_channel;
 
     /**
      * No channel name means it returns the channel of the access_token
@@ -44,64 +24,49 @@ class Channel
                 throw new ChannelException("Please provide a channel name, or use Twitch::setAccessToken() to define the channels access token.");
             }
 
-            $this->_endpoint = "channel";
+            $this->setEndpoint("channel");
         } else {
-            $this->_endpoint = "channels/{$channel_name}";
+            $this->setEndpoint("channels/{$channel_name}");
         }
 
-        $this->_curl = Twitch::api($this->_endpoint)->get();
-        $this->_data = $this->_curl->data();
-
-        if (empty($this->_data)) {
-            print_r($this->_curl); exit;
-            throw new ChannelException("Errors encountered retrieving data.");
-        }
-
-        $this->_name = $this->_data->name;
-        $this->_game = $this->_data->game;
-        $this->_status = $this->_data->status;
-        $this->_display_name = $this->_data->display_name;
-        $this->_logo = $this->_data->logo;
-        $this->_video_banner = $this->_data->video_banner;
-        $this->_profile_banner = $this->_data->profile_banner;
-        $this->_partner = !empty($this->_data->partner);
-        $this->_url = $this->_data->url;
-        $this->_views = $this->_data->views;
-        $this->_follows = $this->_data->followers;
+        $curl = Twitch::api($this->endpoint())->get();
+        $this->setData($curl->data());
     }
 
     public function status($new_status)
     {
-        $this->_status = $new_status;
+        $this->data()->status = $new_status;
         return $this;
     }
 
     public function game($new_game)
     {
-        $this->_game = $new_game;
+        $this->data()->game = $new_game;
         return $this;
     }
 
     // to be used with setTitle and setGame
     public function update()
     {
-        return Twitch::api($this->_endpoint)->put([
+        $response = Twitch::api($this->endpoint())->put([
           'channel' => [
-              'game' => $this->_game,
-              'status' => $this->_status
+              'game' => $this->data()->game,
+              'status' => $this->data()->status
             ]
         ]);
+        
+        return $this;
     }
 
     // the other endpoint options available
     public function resetStreamKey()
     {
-        $response = Twitch::api($this->_endpoint)->delete();
+        return Twitch::api($this->endpoint())->delete();
     }
 
     public function videos()
     {
-        $response = Twitch::api($this->_endpoint . "/videos")->get()->data();
+        $response = Twitch::api($this->endpoint() . "/videos")->get()->data();
 
         if ($response) {
             return $response->videos;
@@ -112,7 +77,7 @@ class Channel
 
     public function followers()
     {
-        $response = Twitch::api($this->_endpoint . "/follows")->get()->data();
+        $response = Twitch::api($this->endpoint() . "/follows")->get()->data();
 
         if ($response) {
             return $response->follows;
@@ -123,7 +88,7 @@ class Channel
 
     public function editors()
     {
-        $response = Twitch::api($this->_endpoint . "/editors")->get()->data();
+        $response = Twitch::api($this->endpoint() . "/editors")->get()->data();
 
         if ($response) {
             return $response->users;
@@ -134,7 +99,7 @@ class Channel
 
     public function teams()
     {
-        $response = Twitch::api($this->_endpoint . "/teams")->get()->data();
+        $response = Twitch::api($this->endpoint() . "/teams")->get()->data();
 
         if ($response) {
             return $response->teams;
@@ -145,7 +110,7 @@ class Channel
 
     public function commercial($length = 30)
     {
-        if (!$this->_partner) {
+        if (empty($this->data()->partner)) {
             throw new ChannelException("You need to be a partner to run commercials.");
         }
 
@@ -162,6 +127,19 @@ class Channel
             throw new ChannelException("Unsupported commercial length.");
         }
 
-        return Twitch::api($this->_endpoint . "/commercial")->put(['length' => $length]);
+        return Twitch::api($this->endpoint() . "/commercial")->post(['length' => $length]);
+    }
+    
+    public function channel()
+    {
+        return $this->data()->name;
+    }
+    
+    /**
+     * 
+     */
+    public function feed()
+    {
+        return ChannelFeed::fetch($this->data()->name);
     }
 }
