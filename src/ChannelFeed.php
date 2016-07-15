@@ -44,7 +44,11 @@ class ChannelFeed extends BaseMethod
         if (empty($params['content'])) {
             throw new ChannelFeedException("Content is required when creating a new channel feed post.");
         }
-        
+
+        if (!Twitch::isAuthorizedFor('channel_feed_edit')) {
+           throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_edit`.", 401);
+       }
+
         return Twitch::Api($this->endpoint())->post([
             'content' => $params['content'],
             'share' => !empty($params['share'])
@@ -63,6 +67,12 @@ class ChannelFeed extends BaseMethod
      */
     public function post($post_id)
     {
+        // Optional scope?
+        //
+        // if (!Twitch::isAuthorizedFor('channel_feed_read')) {
+        //     throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_read`.", 401);
+        // }
+
         return (new ChannelFeedPost([
             'channel' => $this->data()->name,
             'post_id' => $post_id
