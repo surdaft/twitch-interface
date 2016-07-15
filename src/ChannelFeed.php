@@ -23,6 +23,7 @@ class ChannelFeed extends BaseMethod
     {
         // todo: validate the channel name
         
+        $this->_channel = $channel;
         $this->setEndpoint("feed/{$channel}");
         
         $curl = Twitch::Api($this->endpoint() . "/posts")->get();
@@ -74,7 +75,7 @@ class ChannelFeed extends BaseMethod
         // }
 
         return (new ChannelFeedPost([
-            'channel' => $this->data()->name,
+            'channel' => $this->_channel,
             'post_id' => $post_id
         ]));
     }
