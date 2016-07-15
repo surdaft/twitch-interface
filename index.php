@@ -10,7 +10,7 @@ use Twitch\Channel;
 
 $dotenv = (new Dotenv(__DIR__))->load();
 
-Twitch::setApiKey(getenv('twitch.client_id'));
+Twitch::setClientId(getenv('twitch.client_id'));
 Twitch::setAccessToken(getenv('twitch.access_token'));
 
 $channel = Channel::fetch('hackslashdave');
