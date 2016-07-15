@@ -18,3 +18,4 @@ $channel = Channel::fetch('surdaft');
 There will be full documentation on each endpoint once development is complete, but here are a few more neat things.
 
 - You are able to fetch your channel if you have `Twitch::setAccessToken($access_token);` defined, by just calling `Channel::fetch()`. This follows how the Twitch API works, if you were to attach an access_token to a request and just query channel.
+- At a later stage this interface will be more efficienty with the api calls, allowing you to get your channel etc the same way. But not always call a curl unless required, eg you try accessing the data.
