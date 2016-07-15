@@ -164,7 +164,7 @@ class ApiCurl
             $this->_errors['curl'][] = "Recieved empty response.";
         }
 
-        if (in_array($curl_info['http_code'], $bad_codes)) {
+        if ($curl_info['http_code'] !== 200) {
             if (!empty($this->_decoded_response->message)) {
                 $this->_errors['curl'][] = $this->_decoded_response->message;
             } else {
