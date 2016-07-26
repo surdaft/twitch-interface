@@ -1,11 +1,25 @@
 {
     "name": "surdaft/twitch-interface",
+    "type": "library",
+    "description": "An Interface for the Twitch.tv API that strives to make using the API as simple and intuitive as possible.",
+    "keywords": ["twitch", "interface", "surdaft"],
+    "homepage": "https://github.com/surdaft/twitch-interface",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jack Stupple",
+            "email": "surdafts@gmail.com",
+            "homepage": "http://surdaft.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9",
+        "vlucas/phpdotenv": "*"
+    },
     "autoload": {
         "psr-4": {
             "Twitch\\": "src/"
         }
-    },
-    "require": {
-        "vlucas/phpdotenv": "*"
     }
 }
