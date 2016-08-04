@@ -18,8 +18,6 @@ class Twitch
     protected static $access_token;
     protected static $scopes = [];
 
-    const TWITCH_API_BASE_PATH = "https://api.twitch.tv/kraken/";
-
     public static function getClientId()
     {
         return static::$api_key;
@@ -69,6 +67,8 @@ class Twitch
      */
     public static function api($endpoint = '')
     {
+        ApiCurl::$base_path = "https://api.twitch.tv/kraken/";
+        
         return new ApiCurl($endpoint);
     }
 }

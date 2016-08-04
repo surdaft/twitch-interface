@@ -8,46 +8,42 @@ use Twitch\Exceptions\TwitchInterfaceException;
 
 class ApiCurl
 {
+    public static $base_path;
+    
     private $_endpoint;
     private $_code;
     private $_url;
-    private $_as_json = false;
 
-    private $_response;
-    private $_decoded_response;
-
-    private $_curl;
+    private $_client;
+    private $_headers;
 
     private $_errors = [];
     private $_data = [];
 
     function __construct($endpoint, $return_data = false)
     {
-        if (empty(Twitch::$api_key)) {
-            throw new TwitchInterfaceException("ClientID required. Use Twitch::setApiKey() to set the API key.");
-        }
-
         $this->_endpoint = $endpoint;
-        $this->_url = Twitch::TWITCH_API_BASE_PATH . $this->_endpoint;
-        $this->_curl = curl_init($this->_url);
-        $this->_return_data = !empty($return_data);
-
-        $headers = [
-            "Content-Type: application/json",
-            "Accept: application/vnd.twitchtv.v3+json",
-            "Client-ID: " . Twitch::getClientId()
-        ];
-
-        if (!empty(Twitch::getAccessToken())) {
-            $headers[] = "Authorization: OAuth " . Twitch::getAccessToken();
+        
+        if (empty(static::$base_path)) {
+            throw new ApiCurlException("No base path found");
         }
-
-        curl_setopt_array($this->_curl, [
-            CURLOPT_HEADER => false,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_SSL_VERIFYPEER => false // TODO: remove this later, xampp sucks.
-        ]);
+        
+        $this->_url = static::$base_path . $this->_endpoint;
+        
+        $this->_client = new \GuzzleHttp\Client();
+        
+        $this->_headers = [
+            "Content-Type: application/json",
+            "Accept: application/vnd.twitchtv.v3+json"
+        ];
+        
+        if (!empty(Twitch::getClientId())) {
+            $this->_headers[] = "Client-ID: " . Twitch::getClientId();
+        }
+        
+        if (!empty(Twitch::getAccessToken())) {
+            $this->_headers[] = "Authorization: OAuth " . Twitch::getAccessToken();
+        }
     }
 
     /**
@@ -56,6 +52,8 @@ class ApiCurl
      */
     public function get()
     {
+        $this->_method = 'GET';
+        
         // The finalise function collates all the data and is what actually
         // does the curl request.
         return $this->finalise();
@@ -74,11 +72,7 @@ class ApiCurl
         }
 
         $this->_data = $data;
-
-        curl_setopt($this->_curl, CURLOPT_CUSTOMREQUEST, "PUT");
-
-        // This attaches $data to the post
-        curl_setopt($this->_curl, CURLOPT_POSTFIELDS, json_encode($data));
+        $this->_method = 'PUT';
         
         return $this->finalise();
     }
@@ -90,28 +84,16 @@ class ApiCurl
         }
 
         $this->_data = $data;
-
-        curl_setopt($this->_curl, CURLOPT_POST, true);
-
-        // This attaches $data to the post
-        curl_setopt($this->_curl, CURLOPT_POSTFIELDS, json_encode($data));
+        $this->_method = 'POST';
         
         return $this->finalise();
     }
 
     public function delete(array $data = [])
     {
-        curl_setopt($this->_curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-        
-        curl_setopt($this->_curl, CURLOPT_POSTFIELDS, json_encode($data));
+        $this->_method = 'DELETE';
         
         return $this->finalise();
-    }
-
-    public function as_json()
-    {
-        $this->_as_json = true;
-        return $this;
     }
 
     /**
@@ -125,8 +107,7 @@ class ApiCurl
             throw new ApiCurlException("You cannot call scope() after the curl request has been completed. Functions like get() or put() complete the curl request.");
         }
 
-        curl_setopt($this->_curl, CURLOPT_URL, Twitch::TWITCH_API_BASE_PATH . $this->_endpoint . '?scope=' . $scope);
-        $this->url = Twitch::TWITCH_API_BASE_PATH . $this->_endpoint . '?scope=' . $scope;
+        $this->_url = static::$base_path . $this->_endpoint . '?scope=' . $scope;
         return $this;
     }
 
@@ -142,46 +123,28 @@ class ApiCurl
      */
     private function finalise()
     {
-        $this->_response = curl_exec($this->_curl);
-        
+        $this->_request = $this->_client->request($this->_method, $this->_url, $this->_headers);
+        $this->_response = (string) $this->_request->getBody();
         $this->_decoded_response = json_decode($this->_response);
-
-        $curl_info = curl_getinfo($this->_curl);
-        $this->_code = (int) $curl_info['http_code'];
-
-        $bad_codes = [
-            'UnprocessableEntity' => 422,
-            'Unauthorized' => 401,
-            'NoContent' => 204,
-            'TwitchServerError' => 500
-        ];
-
-        if ($this->_response === false) {
-            $this->_errors['curl'][] = curl_error($this->_curl);
-        }
-
-        if ($this->_response === '') {
-            $this->_errors['curl'][] = "Recieved empty response.";
-        }
-
-        if ($curl_info['http_code'] !== 200) {
-            if (!empty($this->_decoded_response->message)) {
-                $this->_errors['curl'][] = $this->_decoded_response->message;
-            } else {
-                $this->_errors['curl'][] = array_search($this->_code, $bad_codes);
-            }
-        }
-
+        
         if (!HelperFunctions::is_json($this->_response)) {
             if (json_last_error() !== JSON_ERROR_NONE) {
-                $this->_errors['json'][] = json_last_error_msg();
+                $this->_errors[] = json_last_error_msg();
             }
-        } elseif (!empty(json_decode($this->_response)->error)) {
-            $this->_errors['twitch'][] = json_decode($this->_response)->error;
         }
 
-        if ($this->_return_data) {
-            return $this->_decoded_response;
+        if ($this->_request->getStatusCode() !== 200) {
+            if (!empty($this->_decoded_response->message)) {
+                $this->_errors[] = $this->_decoded_response->message;
+                $this->_errors[] = $this->_decoded_response->error;
+            }
+            
+            if (!empty((string) $this->_response)) {
+                $this->_errors[] = (string) $this->_response;
+            }
+            
+            $known_error = array_search($this->_request->getStatusCode());
+            $this->_errors[] = !empty($known_errors) ? $known_error : $this->_request->getStatusCode();
         }
         
         return $this;
@@ -205,7 +168,7 @@ class ApiCurl
     public function data()
     {
         if (empty($this->_errors)) {
-            return ($this->_as_json) ? $this->_response : $this->_decoded_response;
+            return $this->_decoded_response;
         }
         
         dd($this->_errors);
