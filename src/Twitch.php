@@ -2,6 +2,7 @@
 
 namespace Twitch;
 
+use \InvalidArgumentException;
 use Twitch\Helpers\ApiCurl;
 
 class Twitch
