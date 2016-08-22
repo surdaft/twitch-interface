@@ -5,11 +5,12 @@ namespace Twitch\Helpers;
 use Twitch\Twitch;
 use Twitch\Helpers\HelperFunctions;
 use Twitch\Exceptions\TwitchInterfaceException;
+use Twitch\Exceptions\ApiCurlException;
 
 class ApiCurl
 {
     public static $base_path;
-    
+
     private $_endpoint;
     private $_code;
     private $_url;
@@ -23,24 +24,24 @@ class ApiCurl
     function __construct($endpoint, $return_data = false)
     {
         $this->_endpoint = $endpoint;
-        
+
         if (empty(static::$base_path)) {
             throw new ApiCurlException("No base path found");
         }
-        
+
         $this->_url = static::$base_path . $this->_endpoint;
-        
+
         $this->_client = new \GuzzleHttp\Client();
-        
+
         $this->_headers = [
             "Content-Type: application/json",
             "Accept: application/vnd.twitchtv.v3+json"
         ];
-        
+
         if (!empty(Twitch::getClientId())) {
             $this->_headers[] = "Client-ID: " . Twitch::getClientId();
         }
-        
+
         if (!empty(Twitch::getAccessToken())) {
             $this->_headers[] = "Authorization: OAuth " . Twitch::getAccessToken();
         }
@@ -53,7 +54,7 @@ class ApiCurl
     public function get()
     {
         $this->_method = 'GET';
-        
+
         // The finalise function collates all the data and is what actually
         // does the curl request.
         return $this->finalise();
@@ -67,32 +68,24 @@ class ApiCurl
      */
     public function put(array $data = [])
     {
-        if (empty(Twitch::getAccessToken())) {
-            throw new ApiCurlException("All PUT requests must be authenticated with an access token. To set the token you must use Twitch::setAccessToken().");
-        }
-
         $this->_data = $data;
         $this->_method = 'PUT';
-        
+
         return $this->finalise();
     }
-    
+
     public function post(array $data = [])
     {
-        if (empty(Twitch::getAccessToken())) {
-            throw new ApiCurlException("All POST requests must be authenticated with an access token. To set a token you must use Twitch::setAccessToken().");
-        }
-
         $this->_data = $data;
         $this->_method = 'POST';
-        
+
         return $this->finalise();
     }
 
     public function delete(array $data = [])
     {
         $this->_method = 'DELETE';
-        
+
         return $this->finalise();
     }
 
@@ -123,10 +116,13 @@ class ApiCurl
      */
     private function finalise()
     {
-        $this->_request = $this->_client->request($this->_method, $this->_url, $this->_headers);
+        $this->_request = $this->_client->request($this->_method, $this->_url, [
+            'headers' => $this->_headers,
+            'form_params' => $this->_data
+        ]);
         $this->_response = (string) $this->_request->getBody();
         $this->_decoded_response = json_decode($this->_response);
-        
+
         if (!HelperFunctions::is_json($this->_response)) {
             if (json_last_error() !== JSON_ERROR_NONE) {
                 $this->_errors[] = json_last_error_msg();
@@ -138,15 +134,15 @@ class ApiCurl
                 $this->_errors[] = $this->_decoded_response->message;
                 $this->_errors[] = $this->_decoded_response->error;
             }
-            
+
             if (!empty((string) $this->_response)) {
                 $this->_errors[] = (string) $this->_response;
             }
-            
+
             $known_error = array_search($this->_request->getStatusCode());
             $this->_errors[] = !empty($known_errors) ? $known_error : $this->_request->getStatusCode();
         }
-        
+
         return $this;
     }
 
@@ -170,7 +166,7 @@ class ApiCurl
         if (empty($this->_errors)) {
             return $this->_decoded_response;
         }
-        
+
         dd($this->_errors);
 
         throw new \Twitch\Exceptions\ApiCurlException("Errors found when trying to get data.");

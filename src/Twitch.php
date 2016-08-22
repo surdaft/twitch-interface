@@ -7,9 +7,12 @@ use Twitch\Helpers\ApiCurl;
 class Twitch
 {
     /**
-     * This is your clientID
+     * This is your clientID & secret
      */
     static $api_key;
+    static $api_secret;
+
+    const base_path = "https://api.twitch.tv/kraken/";
 
     /**
      * This is the token that is returned when a user authenticates
@@ -31,6 +34,19 @@ class Twitch
         static::$api_key = $api_key;
     }
 
+    public static function getClientSecret()
+    {
+        return static::$api_secret;
+    }
+
+    public static function setClientSecret($api_secret)
+    {
+        if (!is_string($api_secret)) {
+            throw new InvalidArgumentException("setClientSecret only accepts strings.");
+        }
+        static::$api_secret = $api_secret;
+    }
+
     public static function getAccessToken()
     {
         return static::$access_token;
@@ -45,30 +61,30 @@ class Twitch
         if (!is_string($access_token)) {
             throw new InvalidArgumentException("setAccessToken only accepts strings.");
         }
-        
+
         static::$access_token = $access_token;
-        
+
         $access_token_validation = Twitch::api()->get()->data();
-        
+
         if (!$access_token_validation->token->valid) {
             throw new \Exception("This access token is not valid. Please confirm you have authorized the user correctly.", 401);
         }
-        
+
         static::$scopes = $access_token_validation->token->authorization->scopes;
     }
 
     /**
      * Curl twitch
      * Use the curl function to GET / PUT / POST / DELETE requests to twitch' api.
-     * 
+     *
      * Example: Twitch::api('channels/surdaft')->get();
-     * 
+     *
      * $params $endpoint string
      */
     public static function api($endpoint = '')
     {
-        ApiCurl::$base_path = "https://api.twitch.tv/kraken/";
-        
+        ApiCurl::$base_path = self::base_path;
+
         return new ApiCurl($endpoint);
     }
 }
