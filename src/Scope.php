@@ -6,14 +6,15 @@ use Twitch\Exceptions\TwitchException;
 
 class Scope
 {
+	 static $scopes = [];
     /**
      * is authorized for
      * Check whether an access token is authorized for a scope, this is used internally
      * to determine whether we can use a function before it does an API call.
      */
-    public static function isAuthorized()
+    public static function isAuthorized($scope)
     {
-        return in_array($scope, Twitch::$scopes);
+        return in_array($scope, $scopes);
     }
 
     /**
@@ -22,6 +23,6 @@ class Scope
      */
     public function getAuthorized()
     {
-        return Twitch::$scopes;
+        return $scopes;
     }
 }

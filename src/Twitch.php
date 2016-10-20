@@ -20,7 +20,6 @@ class Twitch
      * through the OAuth2 method.
      */
     protected static $access_token;
-    protected static $scopes = [];
 
     public static function getClientId()
     {
@@ -71,7 +70,7 @@ class Twitch
             throw new \Exception("This access token is not valid. Please confirm you have authorized the user correctly.", 401);
         }
 
-        static::$scopes = $access_token_validation->token->authorization->scopes;
+        Scope::$scopes = $access_token_validation->token->authorization->scopes;
     }
 
     /**
