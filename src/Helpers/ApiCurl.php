@@ -34,16 +34,16 @@ class ApiCurl
         $this->_client = new \GuzzleHttp\Client();
 
         $this->_headers = [
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/vnd.twitchtv.v3+json'
+            "Content-Type: application/json",
+            "Accept: application/vnd.twitchtv.v3+json"
         ];
 
         if (!empty(Twitch::getClientId())) {
-            $this->_headers[] = 'Client-ID' => Twitch::getClientId();
+            $this->_headers[] = "Client-ID: " . Twitch::getClientId();
         }
 
         if (!empty(Twitch::getAccessToken())) {
-            $this->_headers[] = 'Authorization' => 'OAuth ' . Twitch::getAccessToken();
+            $this->_headers[] = "Authorization: OAuth " . Twitch::getAccessToken();
         }
     }
 
