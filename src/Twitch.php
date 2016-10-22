@@ -20,7 +20,6 @@ class Twitch
      * through the OAuth2 method.
      */
     protected static $access_token;
-    protected static $scopes = [];
 
     public static function getClientId()
     {
@@ -30,7 +29,7 @@ class Twitch
     public static function setClientId($api_key)
     {
         if (!is_string($api_key)) {
-            throw new InvalidArgumentException("setApiKey only accepts strings.");
+            throw new InvalidArgumentException("setClientId only accepts strings.");
         }
         static::$api_key = $api_key;
     }
@@ -71,7 +70,10 @@ class Twitch
             throw new \Exception("This access token is not valid. Please confirm you have authorized the user correctly.", 401);
         }
 
-        static::$scopes = $access_token_validation->token->authorization->scopes;
+        // there would be a chance when changing access_tokens that additional scopes could be added on top of
+        // older ones.
+        Scope::resetScopes();
+        Scope::addAuthorized($access_token_validation->token->authorization->scopes);
     }
 
     /**
