@@ -24,7 +24,8 @@
         "guzzlehttp/guzzle": "*"
     },
     "require-dev": {
-        "surdaft/helpers": "dev-master"
+        "surdaft/helpers": "dev-master",
+        "phpunit/phpunit": "^5.6"
     },
     "autoload": {
         "psr-4": {
