@@ -8,8 +8,8 @@ use Twitch\Traits\CallStatically;
 
 class Channel extends BaseMethod
 {
-    use CallStatically;
-    
+    // use CallStatically;
+
     private $_channel;
 
     /**
@@ -17,8 +17,10 @@ class Channel extends BaseMethod
      * holder. This shows your email address as well as your stream key.
      * @param string $channel_name [description]
      */
-    function __construct($channel_name = "")
+    function __construct($channel_name = "", $client = null)
     {
+        parent::__construct($client);
+
         if (empty($channel_name)) {
             if (empty(Twitch::getAccessToken())) {
                 throw new ChannelException("Please provide a channel name, or use Twitch::setAccessToken() to define the channels access token.");
@@ -27,25 +29,22 @@ class Channel extends BaseMethod
             if (Scope::isAuthorized('channel_read') === false) {
                 throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_read`.", 401);
             }
-
-            $this->setEndpoint("channel");
-        } else {
-            $this->setEndpoint("channels/{$channel_name}");
         }
 
-        $curl = Twitch::api($this->endpoint())->get();
-        $this->setData($curl->data());
+        // $this->client = $client->get('channels/' . $channel_name);
     }
+
+    // still needs refactoring to use $this->client
 
     public function status($new_status)
     {
-        $this->data()->status = $new_status;
+        $this->data->status = $new_status;
         return $this;
     }
 
     public function game($new_game)
     {
-        $this->data()->game = $new_game;
+        $this->data->game = $new_game;
         return $this;
     }
 
@@ -58,11 +57,11 @@ class Channel extends BaseMethod
 
         $response = Twitch::api($this->endpoint())->put([
           'channel' => [
-              'game' => $this->data()->game,
-              'status' => $this->data()->status
+              'game' => $this->data->game,
+              'status' => $this->data->status
             ]
         ]);
-        
+
         return $this;
     }
 
@@ -148,14 +147,14 @@ class Channel extends BaseMethod
 
         return Twitch::api($this->endpoint() . "/commercial")->post(['length' => $length]);
     }
-    
+
     public function channel()
     {
         return $this->data()->name;
     }
-    
+
     /**
-     * 
+     *
      */
     public function feed()
     {
