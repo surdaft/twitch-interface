@@ -8,10 +8,6 @@ use Twitch\Traits\CallStatically;
 
 class Channel extends BaseMethod
 {
-    // use CallStatically;
-
-    private $_channel;
-
     /**
      * No channel name means it returns the channel of the access_token
      * holder. This shows your email address as well as your stream key.
@@ -20,6 +16,10 @@ class Channel extends BaseMethod
     function __construct($channel_name = "", $client = null)
     {
         parent::__construct($client);
+
+        $this->_body = (object) [
+            'channel' => (object) []
+        ];
 
         if (empty($channel_name)) {
             if (empty(Twitch::getAccessToken())) {
@@ -31,37 +31,22 @@ class Channel extends BaseMethod
             }
         }
 
-        // $this->client = $client->get('channels/' . $channel_name);
+        $this->_endpoint = 'channels/' . $channel_name;
     }
-
-    // still needs refactoring to use $this->client
 
     public function status($new_status)
     {
-        $this->data->status = $new_status;
+        $this->_verb = 'PUT';
+
+        $this->_body->channel->status = $new_status;
         return $this;
     }
 
     public function game($new_game)
     {
-        $this->data->game = $new_game;
-        return $this;
-    }
+        $this->_verb = 'PUT';
 
-    // to be used with setTitle and setGame
-    public function update()
-    {
-        if (Scope::isAuthorized('channel_editor') === false)    {
-            throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_editor`.", 401);
-        }
-
-        $response = Twitch::api($this->endpoint())->put([
-          'channel' => [
-              'game' => $this->data->game,
-              'status' => $this->data->status
-            ]
-        ]);
-
+        $this->_body->channel->game = $new_game;
         return $this;
     }
 
