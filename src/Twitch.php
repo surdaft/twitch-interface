@@ -13,7 +13,7 @@ class Twitch
     static $api_key;
     static $api_secret;
 
-    const base_path = "https://api.twitch.tv/kraken/";
+    const baseURI = "https://api.twitch.tv/kraken/";
 
     /**
      * This is the token that is returned when a user authenticates
