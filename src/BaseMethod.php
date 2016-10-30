@@ -6,19 +6,14 @@ use GuzzleHttp\Client;
 
 class BaseMethod
 {
-    protected $_data;
-    protected $_endpoint;
+    protected $_endpoint = '';
 
+    protected $_body = '';
     protected $_verb = 'GET';
 
     public function __construct($client = null)
     {
         $this->client = $client ?: $this->getClient();
-    }
-
-    public function __toString()
-    {
-        return var_export($this->_data, 1);
     }
 
     public static function __callStatic($name, $params)
@@ -36,8 +31,10 @@ class BaseMethod
             throw new TwitchException('No client id specified');
         }
 
-        $request = $this->client->request($this->_verb, $this->_endpoint);
+        $request = $this->client->request($this->_verb, $this->_endpoint, [], $this->_body);
         $response = (string) $request->getBody();
+
+        $this->_body = '';
 
         $decoded_response = json_decode($response);
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -45,17 +42,6 @@ class BaseMethod
         }
 
         return $decoded_response;
-    }
-
-    protected function setData($data)
-    {
-        $this->_data = $data;
-        return $this;
-    }
-
-    public function data()
-    {
-        return $this->_data;
     }
 
     private function getClient()
@@ -74,21 +60,18 @@ class BaseMethod
         ]);
     }
 
-    public static function getClientHeaders()
+    public function body()
     {
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/vnd.twitchtv.v3+json'
-        ];
+        return $this->_body;
+    }
 
-        if (!empty(Twitch::getClientId())) {
-            $headers['Client-ID'] = Twitch::getClientId();
-        }
+    public function endpoint()
+    {
+        return $this->_endpoint;
+    }
 
-        if (!empty(Twitch::getAccessToken())) {
-            $headers['Authorization'] = "OAuth " . Twitch::getAccessToken();
-        }
-
-        return $headers;
+    public function verb()
+    {
+        return $this->_verb;
     }
 }
