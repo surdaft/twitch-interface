@@ -10,38 +10,42 @@ use GuzzleHttp\Psr7\Response;
 
 class BaseMethodTest extends TestCase
 {
+    public function setUp()
+    {
+        \Twitch\Twitch::setClientId('test');
+    }
+
+    public function getClient($mock_responses = [])
+    {
+        return new Client([
+            'headers' => [
+                'Client-ID' => 'test'
+            ],
+            'base_uri' => 'https://api.twitch.tv/kraken/',
+            'handler' => new MockHandler($mock_responses)
+        ]);
+    }
+
     /**
      * @test
      */
-    public function test_fetching_a_response()
+    public function test_default_verb()
     {
-        $json_file = file_get_contents(__DIR__ . '/data/channel.json');
-        $decoded_json_file = json_decode($json_file);
-
-        $mock_handler = new MockHandler([
-            new Response(200, [
-                'Content-Type' => 'application/json'
-            ], $json_file),
-            new Response(200, [
-                'Content-Type' => 'application/json'
-            ], $json_file)
-        ]);
-
-        $client = new Client([
-            'handler' => $mock_handler,
-            'headers' => BaseMethod::getClientHeaders(),
-            'base_uri' => 'https://api.twitch.tv/kraken/channels/surdaft'
-        ]);
-
-        $channel = (new BaseMethod($client))->send();
-        $this->assertEquals($decoded_json_file, $channel);
-
-        $channel = BaseMethod::fetch($client);
-        $this->assertEquals($decoded_json_file, $channel);
+        $base_method = new BaseMethod($this->getClient());
+        $this->assertEquals('GET', $base_method->verb());
     }
 
-    public function test_fetching_a_channel_with_access_token()
+    /**
+     * @test
+     */
+    public function test_recieving_expected_response_decoded()
     {
+        $test_file = file_get_contents(__DIR__ . '/data/channel.json');
 
+        $base_method = new BaseMethod($this->getClient([
+            new Response(200, [], $test_file)
+        ]));
+
+        $this->assertEquals(json_decode($test_file), $base_method->send());
     }
 }
