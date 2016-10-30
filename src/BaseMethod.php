@@ -1,23 +1,24 @@
 <?php
 
 namespace Twitch;
+use Twitch\Exceptions\TwitchException;
+use GuzzleHttp\Client;
 
 class BaseMethod
 {
     protected $_data;
+    protected $_endpoint;
+
+    protected $_verb = 'GET';
 
     public function __construct($client = null)
     {
-        if (is_null($client)) {
-            $client = $this->getClient();
-        }
-
-        $this->client = $client;
+        $this->client = $client ?: $this->getClient();
     }
 
     public function __toString()
     {
-        return print_r($this->_data, 1);
+        return var_export($this->_data, 1);
     }
 
     public static function __callStatic($name, $params)
@@ -31,9 +32,14 @@ class BaseMethod
 
     public function send()
     {
-        $response = (string) $this->client->getBody();
-        $decoded_response = json_decode($response);
+        if (!Twitch::getClientId()) {
+            throw new TwitchException('No client id specified');
+        }
 
+        $request = $this->client->request($this->_verb, $this->_endpoint);
+        $response = (string) $request->getBody();
+
+        $decoded_response = json_decode($response);
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \Exception('Could not decode response from Twitch: ' . json_last_error_msg());
         }
@@ -54,10 +60,18 @@ class BaseMethod
 
     private function getClient()
     {
-        throw new \Exception('This is not set up yet.');
+        $headers = [
+            'Client-ID' => Twitch::getClientId()
+        ];
 
-        $client = null;
-        return $client;
+        if (Twitch::getAccessToken()) {
+            $headers['Authorization'] = 'Oauth ' . Twitch::getAccessToken();
+        }
+
+        return new Client([
+            'headers' => $headers,
+            'base_uri' => Twitch::baseURI
+        ]);
     }
 
     public static function getClientHeaders()
