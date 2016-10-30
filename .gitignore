@@ -1,3 +1,5 @@
 .env
 vendor
 favicon.ico
+index.php
+auth.php
