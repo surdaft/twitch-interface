@@ -6,7 +6,7 @@ use Twitch\Exceptions\TwitchException;
 
 class Scope
 {
-    protected static $scopes = [];
+    protected $scopes = [];
 
     /**
      * is authorized for
@@ -15,24 +15,24 @@ class Scope
      * @param string The scope you want to verify is authorized
      * @return bool
      */
-    public static function isAuthorized($scope)
+    public function isAuthorized($scope)
     {
-        return in_array($scope, static::$scopes);
+        return in_array($scope, $this->scopes);
     }
 
     /**
      * Add a scope to the authorized list
      * @param string | array The scope or scopes you want to add
      */
-    public static function addAuthorized($scope)
+    public function addAuthorized($scope)
     {
         if (is_array($scope)) {
-            static::$scopes = array_merge(static::$scopes, $scope);
+            $this->scopes = array_merge($this->scopes, $scope);
         } else {
-            static::$scopes[] = $scope;
+            $this->scopes[] = $scope;
         }
 
-        static::$scopes = array_unique(static::$scopes);
+        $this->scopes = array_unique($this->scopes);
     }
 
     /**
@@ -40,26 +40,26 @@ class Scope
      * @param  string | array $scope The scope or scopes you want to remove
      * @return bool
      */
-    public static function removeAuthorized($scope)
+    public function removeAuthorized($scope)
     {
         if (is_array($scope)) {
             foreach ($scope as $single_scope) {
-                $scope_key = static::findScopeKey($single_scope);
+                $scope_key = $this->findScopeKey($single_scope);
 
                 if (!$scope_key) {
                     continue;
                 }
 
-                unset(static::$scopes[$scope_key]);
+                unset($this->scopes[$scope_key]);
             }
         } else {
-            $scope_key = static::findScopeKey($scope);
+            $scope_key = $this->findScopeKey($scope);
 
             if (!$scope_key) {
                 return true;
             }
 
-            unset(static::$scopes[$scope_key]);
+            unset($this->scopes[$scope_key]);
         }
 
         return true;
@@ -70,13 +70,13 @@ class Scope
      * @param  string $scope Name of the scope you want to find the key of
      * @return int | false   False would mean the scope was not found
      */
-    private static function findScopeKey($scope)
+    private function findScopeKey($scope)
     {
-        if (!static::isAuthorized($scope)) {
+        if (!$this->isAuthorized($scope)) {
             return false;
         }
 
-        return array_search($scope, static::$scopes);
+        return array_search($scope, $this->scopes);
     }
 
     /**
@@ -86,7 +86,7 @@ class Scope
      */
     public function authorized()
     {
-        return static::$scopes;
+        return $this->scopes;
     }
 
     /**
@@ -94,6 +94,6 @@ class Scope
      */
     public function resetScopes()
     {
-        static::$scopes = [];
+        $this->$scopes = [];
     }
 }

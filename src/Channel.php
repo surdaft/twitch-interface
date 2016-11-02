@@ -26,7 +26,7 @@ class Channel extends BaseMethod
                 throw new ChannelException("Please provide a channel name, or use Twitch::setAccessToken() to define the channels access token.");
             }
 
-            if (Scope::isAuthorized('channel_read') === false) {
+            if (Twitch::$scope->isAuthorized('channel_read') === false) {
                 throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_read`.", 401);
             }
         }
@@ -49,10 +49,12 @@ class Channel extends BaseMethod
         $this->_body->channel->game = $new_game;
         return $this;
     }
+    
+    // after here needs updating with the new way of getting data
 
     public function resetStreamKey()
     {
-        if (Scope::isAuthorized('channel_stream') === false)    {
+        if (Twitch::$scope->isAuthorized('channel_stream') === false)    {
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_stream`.", 401);
         }
 
@@ -83,7 +85,7 @@ class Channel extends BaseMethod
 
     public function editors()
     {
-        if (Scope::isAuthorized('channel_read') === false) {
+        if (Twitch::$scope->isAuthorized('channel_read') === false) {
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_read`.", 401);
         }
 
@@ -109,7 +111,7 @@ class Channel extends BaseMethod
 
     public function commercial($length = 30)
     {
-        if (Scope::isAuthorized('channel_commercial') === false)    {
+        if (Twitch::$scope->isAuthorized('channel_commercial') === false)    {
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_commercial`.", 401);
         }
 
