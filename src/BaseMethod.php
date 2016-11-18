@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 class BaseMethod
 {
     protected $_endpoint = '';
+    protected $_base_endpoint = ''; // to set the standard endpoint so that when it's overwritten we have an original
 
     protected $_body = '';
     protected $_verb = 'GET';
