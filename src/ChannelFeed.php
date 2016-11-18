@@ -16,7 +16,7 @@ class ChannelFeed extends BaseMethod
     
     /**
      * @params $channel string
-     * 
+     *
      * @return array An array of all the posts in the channel
      */
     function __construct($channel)
@@ -37,7 +37,7 @@ class ChannelFeed extends BaseMethod
     /**
      * Create a new feed post
      * Access token must be authorized with the channel scope `channel_feed_edit`.
-     * 
+     *
      * @params $params[] $content You must provide atleast content within the params.
      */
     public function create(array $params)
@@ -46,7 +46,7 @@ class ChannelFeed extends BaseMethod
             throw new ChannelFeedException("Content is required when creating a new channel feed post.");
         }
 
-        if (Scope::isAuthorized('channel_feed_edit') === false) {
+        if (Twitch::$scope->isAuthorized('channel_feed_edit') === false) {
            throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_edit`.", 401);
        }
 
@@ -60,9 +60,9 @@ class ChannelFeed extends BaseMethod
      * Select a post
      * Selecting a post returns all the post data as well as gives you access to
      * certain functions that respond to posts. Like React and Delete.
-     * 
+     *
      * @params number $post_id
-     * 
+     *
      * @return ChannelFeedPost returns a channel feed post which can do more with
      * posts specifically.
      */
