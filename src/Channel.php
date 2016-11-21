@@ -8,6 +8,8 @@ use Twitch\Traits\CallStatically;
 
 class Channel extends BaseMethod
 {
+    use CallStatically;
+    
     /**
      * No channel name means it returns the channel of the access_token
      * holder. This shows your email address as well as your stream key.
@@ -31,6 +33,7 @@ class Channel extends BaseMethod
             }
         }
 
+        $this->_channel = $channel_name;
         $this->_endpoint = 'channels/' . $channel_name;
         $this->_base_endpoint = 'channels/' . $channel_name;
     }
@@ -62,6 +65,7 @@ class Channel extends BaseMethod
         }
         
         $this->_verb = 'DELETE';
+        $this->_endpoint = $this->_base_endpoint;
 
         return $this;
     }
@@ -129,5 +133,13 @@ class Channel extends BaseMethod
         ];
 
         return $this;
+    }
+    
+    /**
+     * Return a channels feed.
+     */
+    public function feed()
+    {
+        return (new ChannelFeed($this->_channel));
     }
 }
