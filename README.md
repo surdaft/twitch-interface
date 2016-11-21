@@ -1,21 +1,41 @@
 This twitch interface is to allow an easy use of the Twitch API via PHP. There are many other composer libraries that accomplish this but they are not quite what I needed personally.
 
-To use this Twitch interface all you need to do is go into your Twitch settings, head over to authorizations and at the bottom you can create your own app. Once created copy the `client_id` and put that somewhere for you to use within your code. I recommend a .env file so you can hide it in an environment variable and fetch it via short functions like `getenv('twitch.client_id');`.
-Once you have your `client_id` just use the command:
+Most methods are replicated in a similar structure from the [Twitch API](https://dev.twitch.tv), though some may be missing or executed in a way you would not expect.
+If this is the case then please leave an issue here and I or another developer can look at implementing it. If you would like to do a pull request then that is more than welcome too.
 
+# How to use
+To use the interface you need to set your `Client ID`, and depending on what endpoint your `Access Token` too.
 ```php
-Twitch::setApiKey($client_id);
+\Twitch\Twitch::setClientId('client_id');
+\Twitch\Twitch::setAccessToken('access_token');
 ```
 
-This defined a singleton existance of your client_id. This client_id is attached to all curl requests, it just means you will not be rate limited, which is nice.
+ > When using `Twitch::setAccessToken()` an API call is made to set your `\Twitch\Twitch::$scope`. If you `print_r(\Twitch\Twitch::$scope->authorized())` you can see all the authorized scopes for that access token. Allowing you to determine early whether someone is authorized to do an action or not.
 
-To fetch a channel it is as easy as:
-
+You are now ready to fetch a channel.
 ```php
+\Twitch\Channel::fetch('surdaft')->send();
+```
+
+If however you would like to use a channel but not get it straight away you can use `\Twitch\Channel::fetch('surdaft');` and then work on it like so:
+```php
+use Twitch\Channel;
+
 $channel = Channel::fetch('surdaft');
+
+// update the game and status
+$channel->game('Overwatch');
+$channel->status('Onlywatch Memes');
+
+// now we are ready to send the API call
+$channel->send();
 ```
 
-There will be full documentation on each endpoint once development is complete, but here are a few more neat things.
+All methods require `send()` at the end, this is to trigger the API call.
 
-- You are able to fetch your channel if you have `Twitch::setAccessToken($access_token);` defined, by just calling `Channel::fetch()`. This follows how the Twitch API works, if you were to attach an access_token to a request and just query channel.
-- At a later stage this interface will be more efficienty with the api calls, allowing you to get your channel etc the same way. But not always call a curl unless required, eg you try accessing the data.
+## Minor notes
+
+A scope does not exist before the access token is added. If you would like to work with and without the access token but your system works around the availability of a scope, then add this in your code when it initializes.
+```php
+\Twitch\Twitch::$scope = new \Twitch\Scope;
+```
