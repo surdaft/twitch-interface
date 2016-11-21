@@ -12,8 +12,6 @@ class ChannelFeed extends BaseMethod
 {
     use CallStatically;
     
-    private $_channel;
-    
     /**
      * @params $channel string
      *
@@ -21,24 +19,15 @@ class ChannelFeed extends BaseMethod
      */
     function __construct($channel)
     {
-        // todo: validate the channel name
-        
         $this->_channel = $channel;
-        $this->setEndpoint("feed/{$channel}");
-        
-        $curl = Twitch::Api($this->endpoint() . "/posts")->get();
-        $this->setData($curl->data()->posts);
-        
-        if (empty($this->data())) {
-            throw new ChannelFeedException("Errors encountered retrieving posts.");
-        }
+        $this->_endpoint = $this->_base_endpoint = "feed/{$channel}/posts";
     }
 
     /**
      * Create a new feed post
      * Access token must be authorized with the channel scope `channel_feed_edit`.
      *
-     * @params $params[] $content You must provide atleast content within the params.
+     * @link https://dev.twitch.tv/docs/api/v3/channel-feed#post-feedchannelposts
      */
     public function create(array $params)
     {
@@ -49,11 +38,15 @@ class ChannelFeed extends BaseMethod
         if (Twitch::$scope->isAuthorized('channel_feed_edit') === false) {
            throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_edit`.", 401);
        }
+       
+       $this->_verb = 'POST';
+       $this->_endpoint = $this->_base_endpoint;
+       $this->_body = [
+           'content' => $params['content'],
+           'share' => !empty($params['share'])
+       ];
 
-        return Twitch::Api($this->endpoint())->post([
-            'content' => $params['content'],
-            'share' => !empty($params['share'])
-        ]);
+        return $this;
     }
 
     /**
@@ -74,9 +67,9 @@ class ChannelFeed extends BaseMethod
         //     throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_read`.", 401);
         // }
 
-        return (new ChannelFeedPost([
-            'channel' => $this->_channel,
-            'post_id' => $post_id
-        ]));
+        $this->_verb = 'GET';
+        $this->_endpoint = $this->_base_endpoint . "/{$post_id}";
+
+        return $this;
     }
 }

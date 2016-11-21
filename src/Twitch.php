@@ -11,6 +11,7 @@ class Twitch
      */
     protected static $api_key;
     protected static $api_secret;
+    protected static $version = '3';
     
     /**
      * This connections scope
@@ -60,15 +61,29 @@ class Twitch
      * You obtain an access token when you follow the authentication process
      * https://github.com/justintv/Twitch-API/blob/master/authentication.md
      */
-    public static function setAccessToken($access_token)
+    public static function setAccessToken($access_token, $client = null)
     {
         if (!is_string($access_token)) {
             throw new InvalidArgumentException("setAccessToken only accepts strings.");
         }
 
         static::$access_token = $access_token;
+        
+        
+        $headers = [
+            'Client-ID' => Twitch::getClientId(),
+            'Accept' => 'application/vnd.twitchtv.v' . Twitch::version() . '+json',
+            'Authorization' => 'Oauth ' . Twitch::getAccessToken()
+        ];
 
-        $access_token_validation = Twitch::api()->get()->data();
+        $client = $client ?: (new \GuzzleHttp\Client([
+            'headers' => $headers,
+            'base_uri' => Twitch::baseURI
+        ]));
+        
+        $request = $client->request('GET');
+
+        $access_token_validation = json_decode($request->getBody());
 
         if (!$access_token_validation->token->valid) {
             throw new \Exception("This access token is not valid. Please confirm you have authorized the user correctly.", 401);
@@ -76,5 +91,14 @@ class Twitch
 
         static::$scope = new Scope;
         static::$scope->addAuthorized($access_token_validation->token->authorization->scopes);
+    }
+    
+    public static function version($version = null)
+    {
+        if (!empty($version)) {
+            self::$version = $version;
+        }
+        
+        return self::$version;
     }
 }
