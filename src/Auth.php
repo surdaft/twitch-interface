@@ -4,7 +4,9 @@ namespace Twitch;
 
 use Twitch\Twitch;
 use Twitch\Exceptions\TwitchInterfaceException;
-
+/**
+ * @method static generate(array $scopes, $redirect_uri, $state = '')
+ */
 class Auth
 {
     private $_scopes = [];
