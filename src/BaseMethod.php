@@ -34,7 +34,7 @@ class BaseMethod
             throw new TwitchException('No client id specified');
         }
 
-        $request = $this->client->request($this->_verb, $this->_endpoint, [], $this->_body);
+        $request = $this->_client->request($this->_verb, $this->_endpoint, [], $this->_body);
         $response = (string) $request->getBody();
 
         $this->_body = '';

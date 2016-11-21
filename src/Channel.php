@@ -5,6 +5,7 @@ namespace Twitch;
 use Twitch\BaseMethod;
 use Twitch\Exceptions\ChannelException;
 use Twitch\Traits\CallStatically;
+use Twitch\Exceptions\TwitchScopeException;
 
 class Channel extends BaseMethod
 {
@@ -101,7 +102,7 @@ class Channel extends BaseMethod
     public function teams()
     {
         $this->_verb = 'GET';
-        $this->_endpoint = $this->_base_endpoint;
+        $this->_endpoint = $this->_base_endpoint . '/teams';
         
         return $this;
     }

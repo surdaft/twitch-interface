@@ -90,7 +90,7 @@ class Twitch
         }
 
         static::$scope = new Scope;
-        static::$scope->addAuthorized($access_token_validation->token->authorization->scopes);
+        static::$scope->addScope($access_token_validation->token->authorization->scopes);
     }
     
     public static function version($version = null)

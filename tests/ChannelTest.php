@@ -18,8 +18,15 @@ class ChannelTest extends TestCase
         
         // sets a scope
         \Twitch\Twitch::setAccessToken('test_access_token', $this->getClient([
-            new Response(200, [], file_get_contents('data/root.json'))
+            new Response(200, [], file_get_contents(__DIR__ . '/data/root.json'))
         ]));
+        
+        $this->resetScopes();
+    }
+    
+    private function resetScopes()
+    {
+        \Twitch\Twitch::$scope->resetScopes();
     }
 
     private function getClient($mock_responses = [])
@@ -104,6 +111,8 @@ class ChannelTest extends TestCase
      */
     public function setting_status_or_game_updates_verb()
     {
+        \Twitch\Twitch::$scope->addScope('channel_read');
+        
         $channel = new Channel('surdaft', $this->getClient());
         $channel->status('test');
 
@@ -120,12 +129,14 @@ class ChannelTest extends TestCase
      */
     public function setting_status_or_game_sets_endpoint()
     {
+        Twitch\Twitch::$scope->addScope('channel_read');
+        
         $channel = new Channel('surdaft', $this->getClient());
         
         // editors changes the endpoint
         $channel->editors()->status('test');
         
-        $this->assertEquals($this->base_uri, $channel->endpoint());
+        $this->assertEquals('channels/surdaft', $channel->endpoint());
     }
     
     /**
@@ -133,6 +144,8 @@ class ChannelTest extends TestCase
      */
     public function reset_stream_key_updates_verb()
     {
+        \Twitch\Twitch::$scope->addScope('channel_stream');
+        
         $channel = new Channel('surdaft', $this->getClient());
         $channel->resetStreamKey();
         
@@ -148,7 +161,7 @@ class ChannelTest extends TestCase
         $channel->videos();
         
         $this->assertEquals('GET', $channel->verb());
-        $this->assertEquals($this->base_uri . '/videos', $channel->endpoint());
+        $this->assertEquals('channels/surdaft/videos', $channel->endpoint());
     }
     
     /**
@@ -160,7 +173,7 @@ class ChannelTest extends TestCase
         $channel->followers();
         
         $this->assertEquals('GET', $channel->verb());
-        $this->assertEquals($this->base_uri . '/followers', $channel->endpoint());
+        $this->assertEquals('channels/surdaft/follows', $channel->endpoint());
     }
     
     /**
@@ -168,11 +181,13 @@ class ChannelTest extends TestCase
      */
     public function check_editors_method_verb_and_endpoint()
     {
+        \Twitch\Twitch::$scope->addScope('channel_read');
+        
         $channel = new Channel('surdaft', $this->getClient());
         $channel->editors();
         
         $this->assertEquals('GET', $channel->verb());
-        $this->assertEquals($this->base_uri . '/editors', $channel->endpoint());
+        $this->assertEquals('channels/surdaft/editors', $channel->endpoint());
     }
     
     /**
@@ -184,12 +199,12 @@ class ChannelTest extends TestCase
         $channel->teams();
         
         $this->assertEquals('GET', $channel->verb());
-        $this->assertEquals($this->base_uri . '/teams', $channel->endpoint());
+        $this->assertEquals('channels/surdaft/teams', $channel->endpoint());
     }
     
     /**
      * @test
-     * @expectedException ScopeException
+     * @expectedException \Twitch\Exceptions\TwitchScopeException
      */
     public function check_commercial_scope_does_not_exist()
     {
@@ -205,14 +220,14 @@ class ChannelTest extends TestCase
     {
         
         \Twitch\Twitch::setAccessToken('test_token', $this->getClient([
-            new Response(200, [], file_get_contents('data/root.json'))
+            new Response(200, [], file_get_contents(__DIR__ . '/data/root.json'))
         ]));
         
         $channel = new Channel('surdaft', $this->getClient());
         $channel->commercial();
         
-        $this->assertEquals('POST', $channel->endpoint());
-        $this->assertEquals($this->base_uri . '/commercial', $channel->endpoint());
+        $this->assertEquals('POST', $channel->verb());
+        $this->assertEquals('channels/surdaft/commercial', $channel->endpoint());
     }
     
     /**
@@ -220,6 +235,8 @@ class ChannelTest extends TestCase
      */
     public function check_commercial_lengths()
     {
+        \Twitch\Twitch::$scope->addScope('channel_commercial');
+        
         $channel = new Channel('surdaft', $this->getClient());
         
         try {
