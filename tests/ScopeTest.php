@@ -26,7 +26,7 @@ class ScopeTest extends TestCase
     public function test_adding_scopes()
     {
         $scope = new Scope;
-        $scope->addAuthorized('test');
+        $scope->addScope('test');
         
         $this->assertEquals(['test'], $scope->authorized());
     }
@@ -40,7 +40,7 @@ class ScopeTest extends TestCase
         
         $this->assertFalse($scope->isAuthorized('test'));
         
-        $scope->addAuthorized('test');
+        $scope->addScope('test');
         
         $this->assertTrue($scope->isAuthorized('test'));
     }
@@ -51,7 +51,7 @@ class ScopeTest extends TestCase
     public function test_adding_array_of_scopes()
     {
         $scope = new Scope;
-        $scope->addAuthorized(['test1','test2']);
+        $scope->addScope(['test1','test2']);
         
         $this->assertEquals(['test1','test2'], $scope->authorized());
     }

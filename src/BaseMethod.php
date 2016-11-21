@@ -6,14 +6,17 @@ use GuzzleHttp\Client;
 
 class BaseMethod
 {
+    protected $_channel;
     protected $_endpoint = '';
+    protected $_base_endpoint = ''; // to set the standard endpoint so that when it's overwritten we have an original
 
-    protected $_body = '';
     protected $_verb = 'GET';
+    protected $_body = '';
+    protected $_client;
 
     public function __construct($client = null)
     {
-        $this->client = $client ?: $this->getClient();
+        $this->_client = $client ?: $this->getClient();
     }
 
     public static function __callStatic($name, $params)
@@ -31,7 +34,7 @@ class BaseMethod
             throw new TwitchException('No client id specified');
         }
 
-        $request = $this->client->request($this->_verb, $this->_endpoint, [], $this->_body);
+        $request = $this->_client->request($this->_verb, $this->_endpoint, [], $this->_body);
         $response = (string) $request->getBody();
 
         $this->_body = '';
@@ -47,7 +50,8 @@ class BaseMethod
     private function getClient()
     {
         $headers = [
-            'Client-ID' => Twitch::getClientId()
+            'Client-ID' => Twitch::getClientId(),
+            'Accept' => 'application/vnd.twitchtv.v' . Twitch::version() . '+json'
         ];
 
         if (Twitch::getAccessToken()) {

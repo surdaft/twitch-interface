@@ -5,9 +5,12 @@ namespace Twitch;
 use Twitch\BaseMethod;
 use Twitch\Exceptions\ChannelException;
 use Twitch\Traits\CallStatically;
+use Twitch\Exceptions\TwitchScopeException;
 
 class Channel extends BaseMethod
 {
+    use CallStatically;
+    
     /**
      * No channel name means it returns the channel of the access_token
      * holder. This shows your email address as well as your stream key.
@@ -31,12 +34,15 @@ class Channel extends BaseMethod
             }
         }
 
+        $this->_channel = $channel_name;
         $this->_endpoint = 'channels/' . $channel_name;
+        $this->_base_endpoint = 'channels/' . $channel_name;
     }
 
     public function status($new_status)
     {
         $this->_verb = 'PUT';
+        $this->_endpoint = $this->_base_endpoint;
 
         $this->_body->channel->status = $new_status;
         return $this;
@@ -45,6 +51,7 @@ class Channel extends BaseMethod
     public function game($new_game)
     {
         $this->_verb = 'PUT';
+        $this->_endpoint = $this->_base_endpoint;
 
         $this->_body->channel->game = $new_game;
         return $this;
@@ -57,30 +64,27 @@ class Channel extends BaseMethod
         if (Twitch::$scope->isAuthorized('channel_stream') === false)    {
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_stream`.", 401);
         }
+        
+        $this->_verb = 'DELETE';
+        $this->_endpoint = $this->_base_endpoint;
 
-        return Twitch::api($this->endpoint())->delete();
+        return $this;
     }
 
     public function videos()
     {
-        $response = Twitch::api($this->endpoint() . "/videos")->get()->data();
-
-        if ($response) {
-            return $response;
-        } else {
-            throw new ChannelException("Errors encountered retrieving videos.");
-        }
+        $this->_verb = 'GET';
+        $this->_endpoint = $this->_base_endpoint . '/videos';
+        
+        return $this;
     }
 
     public function followers()
     {
-        $response = Twitch::api($this->endpoint() . "/follows")->get()->data();
-
-        if ($response) {
-            return $response;
-        } else {
-            throw new ChannelException("Errors encountered retrieving follows.");
-        }
+        $this->_verb = 'GET';
+        $this->_endpoint = $this->_base_endpoint . '/follows';
+        
+        return $this;
     }
 
     public function editors()
@@ -89,34 +93,24 @@ class Channel extends BaseMethod
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_read`.", 401);
         }
 
-        $response = Twitch::api($this->endpoint() . "/editors")->get()->data();
+        $this->_verb = 'GET';
+        $this->_endpoint = $this->_base_endpoint . '/editors';
 
-        if ($response) {
-            return $response;
-        } else {
-            throw new ChannelException("Errors encountered retrieving editors.");
-        }
+        return $this;
     }
 
     public function teams()
     {
-        $response = Twitch::api($this->endpoint() . "/teams")->get()->data();
-
-        if ($response) {
-            return $response;
-        } else {
-            throw new ChannelException("Errors encountered retrieving teams.");
-        }
+        $this->_verb = 'GET';
+        $this->_endpoint = $this->_base_endpoint . '/teams';
+        
+        return $this;
     }
 
     public function commercial($length = 30)
     {
         if (Twitch::$scope->isAuthorized('channel_commercial') === false)    {
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_commercial`.", 401);
-        }
-
-        if (empty($this->data()->partner)) {
-            throw new ChannelException("You need to be a partner to run commercials.");
         }
 
         $supported_lengths = [
@@ -131,20 +125,22 @@ class Channel extends BaseMethod
         if (!in_array($length, $supported_lengths)) {
             throw new ChannelException("Unsupported commercial length.");
         }
+        
+        $this->_verb = 'POST';
+        $this->_endpoint = $this->_base_endpoint . '/commercial';
+        
+        $this->_body = [
+            'length' => $length
+        ];
 
-        return Twitch::api($this->endpoint() . "/commercial")->post(['length' => $length]);
+        return $this;
     }
-
-    public function channel()
-    {
-        return $this->data()->name;
-    }
-
+    
     /**
-     *
+     * Return a channels feed.
      */
     public function feed()
     {
-        return ChannelFeed::fetch($this->data()->name);
+        return (new ChannelFeed($this->_channel));
     }
 }

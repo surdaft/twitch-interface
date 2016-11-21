@@ -24,7 +24,7 @@ class Scope
      * Add a scope to the authorized list
      * @param string | array The scope or scopes you want to add
      */
-    public function addAuthorized($scope)
+    public function addScope($scope)
     {
         if (is_array($scope)) {
             $this->scopes = array_merge($this->scopes, $scope);
@@ -40,7 +40,7 @@ class Scope
      * @param  string | array $scope The scope or scopes you want to remove
      * @return bool
      */
-    public function removeAuthorized($scope)
+    public function removeScope($scope)
     {
         if (is_array($scope)) {
             foreach ($scope as $single_scope) {
@@ -94,6 +94,6 @@ class Scope
      */
     public function resetScopes()
     {
-        $this->$scopes = [];
+        \Twitch\Twitch::$scope = new self;
     }
 }

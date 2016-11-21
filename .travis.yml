@@ -4,4 +4,5 @@ php:
  - '7'
 install:
  - composer install
-
+before_script:
+  - phpenv config-rm xdebug.ini

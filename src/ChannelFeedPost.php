@@ -10,16 +10,13 @@ class ChannelFeedPost extends BaseMethod
 {
     use CallStatically;
     
-    function __construct(array $params)
+    protected $_post_id;
+    
+    function __construct($channel, $post_id)
     {
-        if (empty($params['channel']) || empty($params['post_id'])) {
-            throw new ChannelFeedPostException("We require both the channel and post_id to be passed to ChannelFeedPost as an array.");
-        }
-
-        $this->setEndpoint("feed/{$params['channel']}/posts/{$params['post_id']}");
-
-        $curl = Twitch::Api($this->endpoint())->get();
-        $this->setData($curl->data());
+        $this->_channel = $channel;
+        $this->_post_id = $post_id;
+        $this->_endpoint = $this->_base_endpoint = "feed/{$channel}/posts/{$post_id}";
     }
 
     public function delete()
@@ -27,8 +24,11 @@ class ChannelFeedPost extends BaseMethod
         if (Twitch::$scope->isAuthorized('channel_feed_edit') === false) {
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_edit`.", 401);
         }
+        
+        $this->_verb = 'DELETE';
+        $this->_endpoint = $this->_base_endpoint;
 
-        return Twitch::api($this->endpoint())->delete();
+        return $this;
     }
 
     /**
@@ -46,10 +46,12 @@ class ChannelFeedPost extends BaseMethod
         if (!is_string($emote_id) && !is_numeric($emote_id)) {
             throw new InvalidArgumentException("Emote ID must be either a string or a number.");
         }
-
-        $response = Twitch::api($this->endpoint() . "/reactions")->post([
-            'emote_id' => (string) $emote_id
-        ]);
+        
+        $this->_verb = 'POST';
+        $this->_endpoint = $this->_base_endpoint . '/reactions';
+        $this->_body = [
+            'emote_id' => $emote_id
+        ];
         
         return $this;
     }
@@ -66,10 +68,12 @@ class ChannelFeedPost extends BaseMethod
         if (!is_string($emote_id) && !is_numeric($emote_id)) {
             throw new InvalidArgumentException("Emote ID must be either a string or a number.");
         }
-
-        $response = Twitch::api($this->endpoint() . "/reactions")->delete([
-            'emote_id' => (string) $emote_id
-        ]);
+        
+        $this->_verb = 'DELETE';
+        $this->_endpoint = $this->_base_endpoint . '/reactions';
+        $this->_body = [
+            'emote_id' => $emote_id
+        ];
         
         return $this;
     }
