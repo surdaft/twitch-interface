@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/surdaft/twitch-interface.svg?branch=master)](https://travis-ci.org/surdaft/twitch-interface)
+
 This twitch interface is to allow an easy use of the Twitch API via PHP. There are many other composer libraries that accomplish this but they are not quite what I needed personally.
 
 Most methods are replicated in a similar structure from the [Twitch API](https://dev.twitch.tv), though some may be missing or executed in a way you would not expect.
