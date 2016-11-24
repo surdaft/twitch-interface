@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Twitch-interface by surdaft</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Twitch-interface</h1>
+      <h2 class="project-tagline">An object oriented, unit tested, Twitch API interface. Allowing you to easily and reliably interact with the API without the junk of setting up all the methods yourself. </h2>
+      <a href="https://github.com/surdaft/twitch-interface" class="btn">View on GitHub</a>
+      <a href="https://github.com/surdaft/twitch-interface/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/surdaft/twitch-interface/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p><a href="https://travis-ci.org/surdaft/twitch-interface"><img src="https://travis-ci.org/surdaft/twitch-interface.svg?branch=master" alt="Build Status"></a></p>
+
+<p>This twitch interface is to allow an easy use of the Twitch API via PHP5.6 &gt;. There are many other composer libraries that accomplish this but they are not quite what I needed personally.</p>
+
+<p>Most methods are replicated in a similar structure from the <a href="https://dev.twitch.tv">Twitch API</a>, though some may be missing or executed in a way you would not expect.
+If this is the case then please leave an issue here and I or another developer can look at implementing it. If you would like to do a pull request then that is more than welcome too.</p>
+
+<h1>
+<a id="how-to-use" class="anchor" href="#how-to-use" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to use</h1>
+
+<p>To use the interface you need to set your <code>Client ID</code>, and depending on what endpoint your <code>Access Token</code> too.</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-c1">\Twitch\</span><span class="pl-c1">Twitch</span><span class="pl-k">::</span>setClientId(<span class="pl-s"><span class="pl-pds">'</span>client_id<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"><span class="pl-c1">\Twitch\</span><span class="pl-c1">Twitch</span><span class="pl-k">::</span>setAccessToken(<span class="pl-s"><span class="pl-pds">'</span>access_token<span class="pl-pds">'</span></span>);</span></pre></div>
+
+<blockquote>
+<p>When using <code>Twitch::setAccessToken()</code> an API call is made to set your <code>\Twitch\Twitch::$scope</code>. If you <code>print_r(\Twitch\Twitch::$scope-&gt;authorized())</code> you can see all the authorized scopes for that access token. Allowing you to determine early whether someone is authorized to do an action or not.</p>
+</blockquote>
+
+<p>You are now ready to fetch a channel.</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-c1">\Twitch\</span><span class="pl-c1">Channel</span><span class="pl-k">::</span>fetch(<span class="pl-s"><span class="pl-pds">'</span>surdaft<span class="pl-pds">'</span></span>)<span class="pl-k">-&gt;</span>send();</span></pre></div>
+
+<p>If however you would like to use a channel but not get it straight away you can use <code>\Twitch\Channel::fetch('surdaft');</code> and then work on it like so:</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-k">use</span> <span class="pl-c1">Twitch\Channel</span>;</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-smi">$channel</span> <span class="pl-k">=</span> <span class="pl-c1">Channel</span><span class="pl-k">::</span>fetch(<span class="pl-s"><span class="pl-pds">'</span>surdaft<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// update the game and status</span></span>
+<span class="pl-s1"><span class="pl-smi">$channel</span><span class="pl-k">-&gt;</span>game(<span class="pl-s"><span class="pl-pds">'</span>Overwatch<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"><span class="pl-smi">$channel</span><span class="pl-k">-&gt;</span>status(<span class="pl-s"><span class="pl-pds">'</span>Onlywatch Memes<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">// now we are ready to send the API call</span></span>
+<span class="pl-s1"><span class="pl-smi">$channel</span><span class="pl-k">-&gt;</span>send();</span></pre></div>
+
+<p>All methods require <code>send()</code> at the end, this is to trigger the API call.</p>
+
+<h2>
+<a id="minor-notes" class="anchor" href="#minor-notes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Minor notes</h2>
+
+<p>A scope does not exist before the access token is added. If you would like to work with and without the access token but your system works around the availability of a scope, then add this in your code when it initializes.</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-c1">\Twitch\</span><span class="pl-c1">Twitch</span><span class="pl-k">::</span><span class="pl-smi">$scope</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">\Twitch\</span><span class="pl-c1">Scope</span>;</span></pre></div>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/surdaft/twitch-interface">Twitch-interface</a> is maintained by <a href="https://github.com/surdaft">surdaft</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
