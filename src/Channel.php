@@ -143,4 +143,9 @@ class Channel extends BaseMethod
     {
         return (new ChannelFeed($this->_channel));
     }
+    
+    public function emoticons()
+    {
+        return (new Chat($this->_channel))->emoticons();
+    }
 }
