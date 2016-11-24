@@ -8,7 +8,6 @@ use Twitch\Exceptions\TwitchScopeException;
 /**
  * Blocked User
  * @link https://dev.twitch.tv/docs/api/v3/blocks/
- * @method public static function fetch($user, $blocked_user)
  */
 class BlockedUser extends BaseMethod
 {

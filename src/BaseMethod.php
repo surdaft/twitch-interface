@@ -4,6 +4,13 @@ namespace Twitch;
 use Twitch\Exceptions\TwitchException;
 use GuzzleHttp\Client;
 
+/**
+ * BaseMethod
+ * Extend this method to create a new endpoint to connect to twitch via. This provides an easy to use basis for sending
+ * new requests and adding new methods. Simply update the _verb, _endpoint and _data to set up the new request.
+ * 
+ * @method public static fetch($client)
+ */
 class BaseMethod
 {
     protected $_channel;

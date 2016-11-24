@@ -7,14 +7,19 @@ use Twitch\Exceptions\ChannelException;
 use Twitch\Traits\CallStatically;
 use Twitch\Exceptions\TwitchScopeException;
 
+/**
+ * Channel
+ * @link https://dev.twitch.tv/docs/api/v3/channels
+ */
 class Channel extends BaseMethod
 {
     use CallStatically;
     
     /**
-     * No channel name means it returns the channel of the access_token
-     * holder. This shows your email address as well as your stream key.
-     * @param string $channel_name [description]
+     * Providing no channel falls back to the /channel endpoint
+     * 
+     * @param string $channel_name
+     * @param mixed
      */
     function __construct($channel_name = "", $client = null)
     {
@@ -24,6 +29,9 @@ class Channel extends BaseMethod
             'channel' => (object) []
         ];
 
+        $this->_channel = $channel_name;
+        $this->_endpoint = $this->_base_endpoint = 'channels/' . $channel_name;
+
         if (empty($channel_name)) {
             if (empty(Twitch::getAccessToken())) {
                 throw new ChannelException("Please provide a channel name, or use Twitch::setAccessToken() to define the channels access token.");
@@ -32,13 +40,17 @@ class Channel extends BaseMethod
             if (Twitch::$scope->isAuthorized('channel_read') === false) {
                 throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_read`.", 401);
             }
+            
+            $this->_endpoint = 'channel';
         }
-
-        $this->_channel = $channel_name;
-        $this->_endpoint = 'channels/' . $channel_name;
-        $this->_base_endpoint = 'channels/' . $channel_name;
     }
 
+    /**
+     * Update channel status for the selected channel
+     * @scope channel_editor
+     * 
+     * @return Channel
+     */
     public function status($new_status)
     {
         $this->_verb = 'PUT';
@@ -48,6 +60,12 @@ class Channel extends BaseMethod
         return $this;
     }
 
+    /**
+     * Update game for the selected channel
+     * @scope channel_editor
+     * 
+     * @return Channel
+     */
     public function game($new_game)
     {
         $this->_verb = 'PUT';
@@ -57,8 +75,13 @@ class Channel extends BaseMethod
         return $this;
     }
     
-    // after here needs updating with the new way of getting data
-
+    
+    /**
+     * Reset stream key
+     * @scope channel_stream
+     * 
+     * @return Channel
+     */
     public function resetStreamKey()
     {
         if (Twitch::$scope->isAuthorized('channel_stream') === false)    {
@@ -71,7 +94,19 @@ class Channel extends BaseMethod
         return $this;
     }
 
-    public function videos()
+    /**
+     * Return videos for a channel
+     * 
+     * @params mixed[] $params {
+     *     @type int $limit Maximum number of objects in array. Default is 10. Maximum is 100.
+     *     @type int $offset Object offset for pagination. Default is 0.
+     *     @type bool $broadcasts Returns only broadcasts when true. Otherwise only highlights are returned. Default is false.
+     *     @type bool $hls Returns only HLS VoDs when true. Otherwise only non-HLS VoDs are returned. Default is false.
+     * }
+     * 
+     * @return Channel
+     */
+    public function videos(array $params = [])
     {
         $this->_verb = 'GET';
         $this->_endpoint = $this->_base_endpoint . '/videos';
