@@ -26,13 +26,15 @@ class Scope
      */
     public function addScope($scope)
     {
-        if (is_array($scope)) {
-            $this->scopes = array_merge($this->scopes, $scope);
-        } else {
-            $this->scopes[] = $scope;
-        }
-
+        $this->scopes[] = $scope;
         $this->scopes = array_unique($this->scopes);
+    }
+
+    public function addScopes(array $scopes)
+    {
+        foreach ($scopes as $scope) {
+            $this->addScope($scope);
+        }
     }
 
     /**
