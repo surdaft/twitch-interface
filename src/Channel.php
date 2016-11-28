@@ -14,20 +14,16 @@ use Twitch\Exceptions\TwitchScopeException;
 class Channel extends BaseMethod
 {
     use CallStatically;
-    
+
     /**
      * Providing no channel falls back to the /channel endpoint
-     * 
+     *
      * @param string $channel_name
      * @param mixed
      */
     function __construct($channel_name = "", $client = null)
     {
         parent::__construct($client);
-
-        $this->_body = (object) [
-            'channel' => (object) []
-        ];
 
         $this->_channel = $channel_name;
         $this->_endpoint = $this->_base_endpoint = 'channels/' . $channel_name;
@@ -40,7 +36,7 @@ class Channel extends BaseMethod
             if (Twitch::$scope->isAuthorized('channel_read') === false) {
                 throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_read`.", 401);
             }
-            
+
             $this->_endpoint = 'channel';
         }
     }
@@ -160,17 +156,17 @@ class Channel extends BaseMethod
         if (!in_array($length, $supported_lengths)) {
             throw new ChannelException("Unsupported commercial length.");
         }
-        
+
         $this->_verb = 'POST';
         $this->_endpoint = $this->_base_endpoint . '/commercial';
-        
+
         $this->_body = [
             'length' => $length
         ];
 
         return $this;
     }
-    
+
     /**
      * Return a channels feed.
      */
@@ -178,7 +174,7 @@ class Channel extends BaseMethod
     {
         return (new ChannelFeed($this->_channel));
     }
-    
+
     public function emoticons()
     {
         return (new Chat($this->_channel))->emoticons();
