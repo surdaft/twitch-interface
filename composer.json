@@ -32,5 +32,10 @@
         "psr-4": {
             "Twitch\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
     }
 }
