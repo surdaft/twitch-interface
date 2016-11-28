@@ -12,7 +12,7 @@ class Twitch
     protected static $api_key;
     protected static $api_secret;
     protected static $version = '3';
-    
+
     /**
      * This connections scope
      */
@@ -68,8 +68,8 @@ class Twitch
         }
 
         static::$access_token = $access_token;
-        
-        
+
+
         $headers = [
             'Client-ID' => Twitch::getClientId(),
             'Accept' => 'application/vnd.twitchtv.v' . Twitch::version() . '+json',
@@ -80,7 +80,7 @@ class Twitch
             'headers' => $headers,
             'base_uri' => Twitch::baseURI
         ]));
-        
+
         $request = $client->request('GET');
 
         $access_token_validation = json_decode($request->getBody());
@@ -90,15 +90,15 @@ class Twitch
         }
 
         static::$scope = new Scope;
-        static::$scope->addScope($access_token_validation->token->authorization->scopes);
+        static::$scope->addScopes($access_token_validation->token->authorization->scopes);
     }
-    
+
     public static function version($version = null)
     {
         if (!empty($version)) {
             self::$version = $version;
         }
-        
+
         return self::$version;
     }
 }
