@@ -19,8 +19,10 @@ class BlockedUser extends BaseMethod
     /**
      * This is not an actual endpoint
      */
-    public function __construct($user, $blocked_user)
+    public function __construct($user, $blocked_user, $client = null)
     {
+        parent::__construct($client);
+        
         $this->_user = $user;
         $this->_blocked_user = $blocked_user;
         $this->_endpoint = $this->_base_endpoint = "/users/{$user}/blocks/{$blocked_user}";
