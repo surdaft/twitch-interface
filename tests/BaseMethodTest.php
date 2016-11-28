@@ -1,31 +1,13 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
-
 use Twitch\BaseMethod;
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
+
+use Tests\TwitchInterfaceTestCase;
+
 use GuzzleHttp\Psr7\Response;
 
-class BaseMethodTest extends TestCase
+class BaseMethodTest extends TwitchInterfaceTestCase
 {
-    public function setUp()
-    {
-        \Twitch\Twitch::setClientId('test');
-    }
-
-    public function getClient($mock_responses = [])
-    {
-        return new Client([
-            'headers' => [
-                'Client-ID' => 'test'
-            ],
-            'base_uri' => 'https://api.twitch.tv/kraken/',
-            'handler' => new MockHandler($mock_responses)
-        ]);
-    }
-
     /**
      * @test
      */
