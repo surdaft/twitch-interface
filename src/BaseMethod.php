@@ -18,7 +18,7 @@ class BaseMethod
     protected $_base_endpoint = ''; // to set the standard endpoint so that when it's overwritten we have an original
 
     protected $_verb = 'GET';
-    protected $_body = '';
+    protected $_body;
     protected $_client;
 
     public function __construct($client = null)
