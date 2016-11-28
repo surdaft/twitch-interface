@@ -8,6 +8,10 @@ use Twitch\Traits\CallStatically;
 
 use Twitch\Exceptions\ChannelFeedException;
 
+/**
+ * Channel Feed
+ * @link https://dev.twitch.tv/docs/api/v3/channel-feed
+ */
 class ChannelFeed extends BaseMethod
 {
     use CallStatically;
@@ -25,9 +29,9 @@ class ChannelFeed extends BaseMethod
 
     /**
      * Create a new feed post
-     * Access token must be authorized with the channel scope `channel_feed_edit`.
+     * @scope channel_feed_edit
      *
-     * @link https://dev.twitch.tv/docs/api/v3/channel-feed#post-feedchannelposts
+     * @return ChannelFeed
      */
     public function create(array $params)
     {
@@ -51,25 +55,14 @@ class ChannelFeed extends BaseMethod
 
     /**
      * Select a post
-     * Selecting a post returns all the post data as well as gives you access to
-     * certain functions that respond to posts. Like React and Delete.
+     * @scope channel_feed_read
      *
-     * @params number $post_id
+     * @params int $post_id
      *
-     * @return ChannelFeedPost returns a channel feed post which can do more with
-     * posts specifically.
+     * @return ChannelFeedPost
      */
     public function post($post_id)
     {
-        // Optional scope?
-        //
-        // if (!Twitch::isAuthorizedFor('channel_feed_read')) {
-        //     throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_read`.", 401);
-        // }
-
-        $this->_verb = 'GET';
-        $this->_endpoint = $this->_base_endpoint . "/{$post_id}";
-
-        return $this;
+        return new ChannelFeedPost($this->_channel, $post_id);
     }
 }

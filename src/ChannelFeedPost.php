@@ -6,6 +6,10 @@ use Twitch\BaseMethod;
 use Twitch\Traits\CallStatically;
 use Twitch\Exceptions\ChannelFeedPostException;
 
+/**
+ * Channel Feed Post
+ * @link 
+ */
 class ChannelFeedPost extends BaseMethod
 {
     use CallStatically;
