@@ -8,7 +8,7 @@ use GuzzleHttp\Client;
  * BaseMethod
  * Extend this method to create a new endpoint to connect to twitch via. This provides an easy to use basis for sending
  * new requests and adding new methods. Simply update the _verb, _endpoint and _data to set up the new request.
- * 
+ *
  * @method public static fetch($client)
  */
 class BaseMethod
@@ -39,6 +39,10 @@ class BaseMethod
     {
         if (!Twitch::getClientId()) {
             throw new TwitchException('No client id specified');
+        }
+
+        if (is_null($this->client)) {
+            throw new TwitchException('No http client, this method must be dodgy. Please post an issue in github: https://github.com/surdaft/twitch-interface');
         }
 
         $request = $this->_client->request($this->_verb, $this->_endpoint, [], $this->_body);

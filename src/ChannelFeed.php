@@ -15,14 +15,16 @@ use Twitch\Exceptions\ChannelFeedException;
 class ChannelFeed extends BaseMethod
 {
     use CallStatically;
-    
+
     /**
      * @params $channel string
      *
      * @return array An array of all the posts in the channel
      */
-    function __construct($channel)
+    function __construct($channel, $client = null)
     {
+        parent::__construct($client);
+
         $this->_channel = $channel;
         $this->_endpoint = $this->_base_endpoint = "feed/{$channel}/posts";
     }
@@ -42,7 +44,7 @@ class ChannelFeed extends BaseMethod
         if (Twitch::$scope->isAuthorized('channel_feed_edit') === false) {
            throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_edit`.", 401);
        }
-       
+
        $this->_verb = 'POST';
        $this->_endpoint = $this->_base_endpoint;
        $this->_body = [

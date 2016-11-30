@@ -8,16 +8,18 @@ use Twitch\Exceptions\ChannelFeedPostException;
 
 /**
  * Channel Feed Post
- * @link 
+ * @link
  */
 class ChannelFeedPost extends BaseMethod
 {
     use CallStatically;
-    
+
     protected $_post_id;
-    
-    function __construct($channel, $post_id)
+
+    function __construct($channel, $post_id, $client = null)
     {
+        parent::__construct($client);
+
         $this->_channel = $channel;
         $this->_post_id = $post_id;
         $this->_endpoint = $this->_base_endpoint = "feed/{$channel}/posts/{$post_id}";
@@ -28,7 +30,7 @@ class ChannelFeedPost extends BaseMethod
         if (Twitch::$scope->isAuthorized('channel_feed_edit') === false) {
             throw new TwitchScopeException("You do not have sufficient scope priviledges to run this command. Make sure you're authorized for `channel_feed_edit`.", 401);
         }
-        
+
         $this->_verb = 'DELETE';
         $this->_endpoint = $this->_base_endpoint;
 
@@ -50,16 +52,16 @@ class ChannelFeedPost extends BaseMethod
         if (!is_string($emote_id) && !is_numeric($emote_id)) {
             throw new InvalidArgumentException("Emote ID must be either a string or a number.");
         }
-        
+
         $this->_verb = 'POST';
         $this->_endpoint = $this->_base_endpoint . '/reactions';
         $this->_body = [
             'emote_id' => $emote_id
         ];
-        
+
         return $this;
     }
-    
+
     /**
      * This undoes the reaction from the method above.
      */
@@ -72,13 +74,13 @@ class ChannelFeedPost extends BaseMethod
         if (!is_string($emote_id) && !is_numeric($emote_id)) {
             throw new InvalidArgumentException("Emote ID must be either a string or a number.");
         }
-        
+
         $this->_verb = 'DELETE';
         $this->_endpoint = $this->_base_endpoint . '/reactions';
         $this->_body = [
             'emote_id' => $emote_id
         ];
-        
+
         return $this;
     }
 }
