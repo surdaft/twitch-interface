@@ -41,7 +41,7 @@ class BaseMethod
             throw new TwitchException('No client id specified');
         }
 
-        if (is_null($this->client)) {
+        if (is_null($this->_client)) {
             throw new TwitchException('No http client, this method must be dodgy. Please post an issue in github: https://github.com/surdaft/twitch-interface');
         }
 
