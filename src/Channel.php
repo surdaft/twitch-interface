@@ -267,4 +267,9 @@ class Channel extends BaseMethod
     {
         return (new Chat($this->_channel))->emoticons();
     }
+
+    public function stream()
+    {
+        return (new Stream)->channel($this->_channel);
+    }
 }
