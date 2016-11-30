@@ -12,7 +12,7 @@ class Stream extends BaseMethod
     {
         parent::__construct($client);
 
-        $this->_endpoint = $this->_base_endpoint = '/streams';
+        $this->_endpoint = $this->_base_endpoint = 'streams';
     }
 
     public function channel($channel)

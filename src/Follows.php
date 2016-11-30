@@ -15,7 +15,7 @@ class Follows extends BaseMethod
         parent::__construct($client);
 
         $this->_user = $user;
-        $this->_endpoint = $this->_base_endpoint = "/users/{$user}/follows";
+        $this->_endpoint = $this->_base_endpoint = "users/{$user}/follows";
     }
 
     public function channels()

@@ -13,7 +13,7 @@ class Chat extends BaseMethod
         parent::__construct($client);
 
         $this->_channel = $channel;
-        $this->_base_endpoint = '/chat';
+        $this->_endpoint = $this->_base_endpoint = 'chat';
     }
 
     public function emoticons()
