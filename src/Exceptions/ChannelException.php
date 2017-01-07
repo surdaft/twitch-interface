@@ -2,6 +2,6 @@
 
 namespace Twitch\Exceptions;
 
-class ChannelException extends BaseException
+class ChannelException extends \Exception
 {
 }
