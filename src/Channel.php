@@ -2,8 +2,6 @@
 
 namespace Twitch;
 
-use Twitch\BaseMethod;
-use Twitch\Exceptions\ChannelException;
 use Twitch\Traits\CallStatically;
 use Twitch\Exceptions\TwitchScopeException;
 
@@ -30,7 +28,7 @@ class Channel extends BaseMethod
 
         if (empty($channel_name)) {
             if (empty(Twitch::getAccessToken())) {
-                throw new ChannelException("Please provide a channel name, or use Twitch::setAccessToken() to define the channels access token.");
+                throw new \InvalidArgumentException("Please provide a channel name, or use Twitch::setAccessToken() to define the channels access token.");
             }
 
             if (Twitch::$scope->isAuthorized('channel_read') === false) {
@@ -242,7 +240,7 @@ class Channel extends BaseMethod
         ];
 
         if (!in_array($length, $supported_lengths)) {
-            throw new ChannelException("Unsupported commercial length.");
+            throw new \InvalidArgumentException("Unsupported commercial length.");
         }
 
         $this->_verb = 'POST';
