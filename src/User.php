@@ -10,12 +10,12 @@ class User extends BaseMethod
 
     protected $user;
 
-    public function __construct($user, $client = null)
+    public function __construct($user_id, $client = null)
     {
         parent::__construct($client);
 
-        $this->_user = $user;
-        $this->_endpoint = $this->_base_endpoint = "users/{$user}";
+        $this->_user = $user_id;
+        $this->_endpoint = $this->_base_endpoint = "users/{$user_id}";
     }
 
     public function emotes()
@@ -54,5 +54,19 @@ class User extends BaseMethod
         $this->_endpoint = $this->_base_endpoint . '/blocks';
 
         return $this;
+    }
+
+    public function usingDisplayName()
+    {
+        $this->_endpoint = 'users?login=' . $this->_user;
+        return $this;
+    }
+
+    public static function getUserIdFromDisplayName($display_name)
+    {
+        $user = new static($display_name);
+        $user->usingDisplayName();
+
+        return $user->send();
     }
 }
