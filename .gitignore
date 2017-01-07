@@ -1,5 +1,10 @@
 .env
+
 vendor
+
 favicon.ico
+
 index.php
+
 .c9
+.idea
