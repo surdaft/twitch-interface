@@ -23,6 +23,8 @@ If however you would like to use a channel but not get it straight away you can 
 ```php
 use Twitch\Channel;
 
+// In the Twitch v5 API docs they require the user_id instead of a username. A new method
+// has been placed within Channel to retrieve the user_id from a username for this reason.
 $channel = Channel::fetch('surdaft');
 
 // update the game and status
