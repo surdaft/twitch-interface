@@ -11,7 +11,7 @@ class ChannelTest extends TwitchInterfaceTestCase
 {
     /**
      * @test
-     * @expectedException Twitch\Exceptions\ChannelException
+     * @expectedException \InvalidArgumentException
      */
     public function without_channel_requires_access_token()
     {
@@ -289,7 +289,7 @@ class ChannelTest extends TwitchInterfaceTestCase
 
     /**
      * @test
-     * @expectedException Twitch\Exceptions\ChannelException
+     * @expectedException \InvalidArgumentException
      */
     public function check_commercial_invalid_length()
     {
