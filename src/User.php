@@ -32,7 +32,7 @@ class User extends BaseMethod
     public function followed()
     {
         $this->_verb = 'GET';
-        $this->_endpoint = '/streams/followed';
+        $this->_endpoint = 'streams/followed';
 
         return $this;
     }
@@ -43,7 +43,7 @@ class User extends BaseMethod
     public function videos()
     {
         $this->_verb = 'GET';
-        $this->_endpoint = '/videos/followed';
+        $this->_endpoint = 'videos/followed';
 
         return $this;
     }
