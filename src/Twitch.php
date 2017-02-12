@@ -73,7 +73,7 @@ class Twitch
         $headers = [
             'Client-ID' => Twitch::getClientId(),
             'Accept' => 'application/vnd.twitchtv.v' . Twitch::version() . '+json',
-            'Authorization' => 'Oauth ' . Twitch::getAccessToken()
+            'Authorization' => 'OAuth ' . Twitch::getAccessToken()
         ];
 
         $client = $client ?: (new \GuzzleHttp\Client([

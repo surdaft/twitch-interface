@@ -66,7 +66,7 @@ class BaseMethod
         ];
 
         if (Twitch::getAccessToken()) {
-            $headers['Authorization'] = 'Oauth ' . Twitch::getAccessToken();
+            $headers['Authorization'] = 'OAuth ' . Twitch::getAccessToken();
         }
 
         return new Client([
