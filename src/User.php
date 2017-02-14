@@ -29,10 +29,15 @@ class User extends BaseMethod
     /**
      * TODO: Add @scope validation
      */
-    public function followed()
+    public function following($live_only = false)
     {
-        $this->_verb = 'GET';
-        $this->_endpoint = 'streams/followed';
+        if ($live_only) {
+            $this->_verb = 'GET';
+            $this->_endpoint = 'streams/followed';
+        } else {
+            $this->_verb = 'GET';
+            $this->_endpoint = $this->_base_endpoint . '/follows/channels';
+        }
 
         return $this;
     }
