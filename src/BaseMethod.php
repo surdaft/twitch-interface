@@ -51,7 +51,7 @@ class BaseMethod
         $this->_body = '';
 
         $decoded_response = json_decode($response);
-        if (json_last_error() !== JSON_ERROR_NONE) {
+        if (strlen($decoded_response) && json_last_error() !== JSON_ERROR_NONE) {
             throw new \Exception('Could not decode response from Twitch: ' . json_last_error_msg());
         }
 
