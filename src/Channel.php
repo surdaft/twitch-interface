@@ -270,4 +270,12 @@ class Channel extends BaseMethod
     {
         return (new Stream)->channel($this->_channel);
     }
+
+    public function panels()
+    {
+        $this->_endpoint = '/api/channels/' . $this->_channel . '/panels';
+        $this->_verb = 'GET';
+        
+        return $this;
+    }
 }
