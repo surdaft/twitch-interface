@@ -67,7 +67,7 @@ class User extends BaseMethod
         return $this;
     }
 
-    public static function getUserIdFromDisplayName($display_name)
+    public static function getUserFromDisplayName($display_name)
     {
         $user = new static($display_name);
         $user->usingDisplayName();
