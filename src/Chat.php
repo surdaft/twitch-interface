@@ -29,10 +29,10 @@ class Chat extends BaseMethod
         return $this;
     }
 
-    public function emoticon_images()
+    public function emoticon_images(array $emotesets)
     {
         $this->_verb = 'GET';
-        $this->_endpoint = $this->_base_endpoint . '/emoticon_images';
+        $this->_endpoint = $this->_base_endpoint . '/emoticon_images?emotesets=' . implode(',', $emotesets);
 
         return $this;
     }
