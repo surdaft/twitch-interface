@@ -1,8 +1,15 @@
 language: php
 php:
- - '5.6.25'
- - '7'
+- 5.6.25
+- '7'
 install:
- - composer install
+- composer install
 before_script:
-  - phpenv config-rm xdebug.ini
+- phpenv config-rm xdebug.ini
+deploy:
+  provider: releases
+  api_key:
+    secure: ZEFaT/1rHhJF6vKjYB61J/LrIzYBB0+1+WW1buf+RTdTeSn+m6EsSslxp7bzMhevKXTc+HOXOkF0SL/2GGRIZ9KOJhMe9TDJRx7xcc07m5l8VXcNzHm6VLNuuynQfHyLPIuTODQsZokecOHsBtKmxLeN0tyxczpxyzhqib13feODg86cP95R3ZyIUtiMY6zyKJG67VONKprx08cIX7UewDgbLJacSzeP5/NEp1HopAPqyfgU68tmhLB5RcfS+Pmm+hW0O4IjaZI2ag/SW42MxoB19rvMUUbGDIxIoT/rEI5t4iXgfAzHzgko4exiOU7yu2AUjvvuU50CyP3OeFtGZcfj/nuDXdR/BMyyJiB/TeffJyLiLc41Y8BqUMK1g/ZWVes1jCzoW+dBCIjoEGAsV3qG4CzDV/CxA88MKZr16prgb4z5OUcWKA2PK5FZg3v05Y/acjLN2T//Xe5aVbPxJ99bUedp43/XJAAvbC14H9D7H4dSsgF/6VnuSYGGoL9lMP59PqFsiJA3BtYRH8GnlzwpmIoywzHAFvU9z8pBcdNBSU3axtrTMDSYb/BHhM5xalziy5MgFV5atfl0/4YNjyOBQwHSs+KxLlHfvrsvI+YblbfpyyF2FLGZr+QQhR/8kqeSXMPnhQ0SNrdvWBxWk9qIO6Nacv3laHqxkkCn1ns=
+  file: README.md
+  on:
+    repo: surdaft/twitch-interface
